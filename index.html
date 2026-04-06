@@ -53,7 +53,7 @@ header p{font-size:11px;opacity:.7;margin-top:1px}
 .prog-stats{display:flex;gap:28px}
 .prog-stat .pn2{font-size:22px;font-weight:800;color:#2563eb;text-align:center}
 .prog-stat .pl{font-size:10px;color:#64748b;text-transform:uppercase;text-align:center}
-#leg{position:absolute;bottom:20px;right:12px;background:rgba(15,23,42,.93);backdrop-filter:blur(6px);border:1px solid #334155;border-radius:10px;padding:10px 14px;box-shadow:0 4px 16px rgba(0,0,0,.4);z-index:1000;min-width:185px;max-height:320px;overflow-y:auto}
+#leg{position:absolute;bottom:20px;right:12px;background:rgba(15,23,42,.93);backdrop-filter:blur(6px);border:1px solid #334155;border-radius:10px;padding:10px 14px;box-shadow:0 4px 16px rgba(0,0,0,.4);z-index:1000;min-width:185px;max-height:340px;overflow-y:auto}
 #leg h4{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;font-weight:700}
 .lr{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px;color:#e2e8f0;white-space:nowrap}
 .ld{width:11px;height:11px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(255,255,255,.2)}
@@ -120,25 +120,57 @@ const map=L.map('map',{center:[-38,-63],zoom:5});
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
   {attribution:'©OpenStreetMap ©CARTO',subdomains:'abcd',maxZoom:19}).addTo(map);
 
-const cluster=L.markerClusterGroup({
-  maxClusterRadius:40,spiderfyOnMaxZoom:true,showCoverageOnHover:false,
-  iconCreateFunction:function(c){
-    const n=c.getChildCount();
-    const s=n>100?54:n>50?44:n>20?36:28;
-    const col=n>100?'#ef4444':n>50?'#f97316':n>20?'#f59e0b':'#3b82f6';
-    return L.divIcon({html:`<div style="width:${s}px;height:${s}px;border-radius:50%;background:${col};border:2.5px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:${s>36?13:11}px;text-shadow:0 1px 2px rgba(0,0,0,.5)">${n}</div>`,iconSize:[s,s],iconAnchor:[s/2,s/2],className:''});
-  }
-});
+// ── CLAVE: un MarkerClusterGroup por provincia ──
+// Así cada cluster hereda el color de su provincia
+const clustersByProv = {};
+const allClusters = L.layerGroup().addTo(map);
 
-function mkDot(color){
-  return L.divIcon({className:'',
-    html:`<div style="width:11px;height:11px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.7)"></div>`,
-    iconSize:[11,11],iconAnchor:[5.5,5.5]});
+function getCluster(prov) {
+  if (!clustersByProv[prov]) {
+    const color = PROV_COLORS[prov] || '#94a3b8';
+    const mc = L.markerClusterGroup({
+      maxClusterRadius: 60,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      iconCreateFunction: function(c) {
+        const n = c.getChildCount();
+        const s = n > 200 ? 54 : n > 50 ? 44 : n > 10 ? 36 : 28;
+        const fontSize = s > 36 ? 13 : s > 28 ? 11 : 10;
+        // Color de borde ligeramente más oscuro para dar profundidad
+        return L.divIcon({
+          html: `<div style="
+            width:${s}px;height:${s}px;border-radius:50%;
+            background:${color};
+            border:2.5px solid rgba(255,255,255,0.85);
+            box-shadow:0 2px 10px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.2);
+            display:flex;align-items:center;justify-content:center;
+            color:#fff;font-weight:800;font-size:${fontSize}px;
+            text-shadow:0 1px 3px rgba(0,0,0,0.7);
+            font-family:'Segoe UI',Arial,sans-serif;
+          ">${n}</div>`,
+          iconSize: [s, s],
+          iconAnchor: [s/2, s/2],
+          className: ''
+        });
+      }
+    });
+    allClusters.addLayer(mc);
+    clustersByProv[prov] = mc;
+  }
+  return clustersByProv[prov];
 }
 
-function popupHtml(f,lat,lng){
-  const color=PROV_COLORS[f.p]||'#94a3b8';
-  const mapsUrl=`https://www.google.com/maps?q=${lat},${lng}`;
+function mkDot(color) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:11px;height:11px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.7)"></div>`,
+    iconSize: [11,11], iconAnchor: [5.5,5.5]
+  });
+}
+
+function popupHtml(f, lat, lng) {
+  const color = PROV_COLORS[f.p] || '#94a3b8';
+  const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
   return `<div style="min-width:225px;font-family:'Segoe UI',Arial,sans-serif">
     <div style="background:#1e3a5f;color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:6px">ID: ${f.id}</div>
     <div style="font-weight:700;font-size:13px;color:#1e293b;margin-bottom:4px">${f.n}</div>
@@ -153,216 +185,195 @@ function popupHtml(f,lat,lng){
 }
 
 // CP selector
-const cpCounts={};
-FARMACIAS.forEach(f=>{cpCounts[f.cp]=(cpCounts[f.cp]||0)+1;});
-const cpsel=document.getElementById('cpsel');
-Object.entries(cpCounts).sort((a,b)=>b[1]-a[1]).forEach(([cp,cnt])=>{
-  const o=document.createElement('option');o.value=cp;o.textContent=`CP ${cp} (${cnt})`;cpsel.appendChild(o);
+const cpCounts = {};
+FARMACIAS.forEach(f => { cpCounts[f.cp] = (cpCounts[f.cp]||0) + 1; });
+const cpsel = document.getElementById('cpsel');
+Object.entries(cpCounts).sort((a,b) => b[1]-a[1]).forEach(([cp,cnt]) => {
+  const o = document.createElement('option'); o.value = cp;
+  o.textContent = `CP ${cp} (${cnt})`; cpsel.appendChild(o);
 });
 
 // Province sidebar
-const pvl=document.getElementById('pvl');
-const psel=document.getElementById('psel');
-Object.entries(PROV_COUNTS).forEach(([prov,count])=>{
-  const color=PROV_COLORS[prov]||'#94a3b8';
-  const card=document.createElement('div');card.className='pc';card.dataset.p=prov;
-  card.innerHTML=`<div class="pd" style="background:${color}"></div><div class="pn">${prov.charAt(0)+prov.slice(1).toLowerCase()}</div><div class="pk">${count}</div>`;
-  card.addEventListener('click',()=>{
-    const same=activeProv===prov;
-    document.querySelectorAll('.pc').forEach(c=>c.classList.remove('active'));
-    activeProv=same?'':(card.classList.add('active'),prov);
-    psel.value=activeProv;activeCp='';cpsel.value='';
-    refreshMarkers();buildLegend();
+const pvl = document.getElementById('pvl');
+const psel = document.getElementById('psel');
+Object.entries(PROV_COUNTS).forEach(([prov, count]) => {
+  const color = PROV_COLORS[prov] || '#94a3b8';
+  const card = document.createElement('div'); card.className = 'pc'; card.dataset.p = prov;
+  card.innerHTML = `<div class="pd" style="background:${color}"></div><div class="pn">${prov.charAt(0)+prov.slice(1).toLowerCase()}</div><div class="pk">${count}</div>`;
+  card.addEventListener('click', () => {
+    const same = activeProv === prov;
+    document.querySelectorAll('.pc').forEach(c => c.classList.remove('active'));
+    activeProv = same ? '' : (card.classList.add('active'), prov);
+    psel.value = activeProv; activeCp = ''; cpsel.value = '';
+    refreshMarkers(); buildLegend();
   });
   pvl.appendChild(card);
-  const opt=document.createElement('option');opt.value=prov;
-  opt.textContent=`${prov.charAt(0)+prov.slice(1).toLowerCase()} (${count})`;
+  const opt = document.createElement('option'); opt.value = prov;
+  opt.textContent = `${prov.charAt(0)+prov.slice(1).toLowerCase()} (${count})`;
   psel.appendChild(opt);
 });
 
-function filterByProv(){
-  activeProv=psel.value;activeCp='';cpsel.value='';
-  document.querySelectorAll('.pc').forEach(c=>c.classList.toggle('active',c.dataset.p===activeProv));
-  refreshMarkers();buildLegend();
+function filterByProv() {
+  activeProv = psel.value; activeCp = ''; cpsel.value = '';
+  document.querySelectorAll('.pc').forEach(c => c.classList.toggle('active', c.dataset.p === activeProv));
+  refreshMarkers(); buildLegend();
 }
-function filterByCp(){
-  activeCp=cpsel.value;activeProv='';psel.value='';
-  document.querySelectorAll('.pc').forEach(c=>c.classList.remove('active'));
+function filterByCp() {
+  activeCp = cpsel.value; activeProv = ''; psel.value = '';
+  document.querySelectorAll('.pc').forEach(c => c.classList.remove('active'));
   refreshMarkers();
 }
-function refreshMarkers(){
-  cluster.clearLayers();
-  let filtered=allM;
-  if(activeProv) filtered=filtered.filter(i=>i.f.p===activeProv);
-  if(activeCp)   filtered=filtered.filter(i=>String(i.f.cp)===activeCp);
-  filtered.forEach(i=>cluster.addLayer(i.m));
-  document.getElementById('sb-count').textContent=filtered.length.toLocaleString();
-  document.getElementById('statusbar').style.display='block';
-  if(filtered.length&&(activeProv||activeCp)){
-    const lats=filtered.map(i=>i.m.getLatLng().lat);
-    const lngs=filtered.map(i=>i.m.getLatLng().lng);
-    map.fitBounds([[Math.min(...lats)-.05,Math.min(...lngs)-.08],[Math.max(...lats)+.05,Math.max(...lngs)+.08]],{padding:[30,30]});
-  }else map.setView([-38,-63],5);
+
+function refreshMarkers() {
+  // Ocultar/mostrar clusters por provincia y filtrar dentro de ellos
+  Object.entries(clustersByProv).forEach(([prov, mc]) => {
+    mc.clearLayers();
+  });
+
+  let filtered = allM;
+  if (activeProv) filtered = filtered.filter(i => i.f.p === activeProv);
+  if (activeCp)   filtered = filtered.filter(i => String(i.f.cp) === activeCp);
+
+  filtered.forEach(i => {
+    const mc = getCluster(i.f.p);
+    mc.addLayer(i.m);
+  });
+
+  const total = filtered.length;
+  document.getElementById('sb-count').textContent = total.toLocaleString();
+  document.getElementById('statusbar').style.display = 'block';
+
+  if (filtered.length && (activeProv || activeCp)) {
+    const lats = filtered.map(i => i.m.getLatLng().lat);
+    const lngs = filtered.map(i => i.m.getLatLng().lng);
+    map.fitBounds([[Math.min(...lats)-.05, Math.min(...lngs)-.08],[Math.max(...lats)+.05, Math.max(...lngs)+.08]], {padding:[30,30]});
+  } else {
+    map.setView([-38,-63], 5);
+  }
 }
 
-function buildLegend(){
-  const el=document.getElementById('li');el.innerHTML='';
-  const provs=activeProv?[[activeProv,PROV_COUNTS[activeProv]]]:Object.entries(PROV_COUNTS);
-  provs.forEach(([prov,count])=>{
-    const color=PROV_COLORS[prov]||'#94a3b8';
-    el.innerHTML+=`<div class="lr"><div class="ld" style="background:${color}"></div>${prov.charAt(0)+prov.slice(1).toLowerCase()} (${count})</div>`;
+function buildLegend() {
+  const el = document.getElementById('li'); el.innerHTML = '';
+  const provs = activeProv ? [[activeProv, PROV_COUNTS[activeProv]]] : Object.entries(PROV_COUNTS);
+  provs.forEach(([prov, count]) => {
+    const color = PROV_COLORS[prov] || '#94a3b8';
+    el.innerHTML += `<div class="lr"><div class="ld" style="background:${color}"></div>${prov.charAt(0)+prov.slice(1).toLowerCase()} (${count})</div>`;
   });
 }
 buildLegend();
 
-function doSearch(){
-  const q=document.getElementById('sq').value.toLowerCase().trim();
-  const box=document.getElementById('sr');box.innerHTML='';
-  if(q.length<2){box.style.display='none';return;}
-  const hits=FARMACIAS.filter(f=>f.n.toLowerCase().includes(q)||f.l.toLowerCase().includes(q)||f.a.toLowerCase().includes(q)||String(f.cp).includes(q)||String(f.id).includes(q)).slice(0,20);
-  if(!hits.length){box.innerHTML='<div style="padding:10px 14px;font-size:12px;color:#64748b">Sin resultados</div>';box.style.display='block';return;}
-  hits.forEach(f=>{
-    const d=document.createElement('div');d.className='ri';
-    d.innerHTML=`<strong>${f.n}</strong><div class="rs">${f.a} · ${f.l}</div><span class="rid">ID: ${f.id}</span>`;
-    d.addEventListener('click',()=>{
-      const item=allM.find(i=>i.f.id===f.id);
-      if(item){map.setView(item.m.getLatLng(),17);item.m.openPopup();}
+function doSearch() {
+  const q = document.getElementById('sq').value.toLowerCase().trim();
+  const box = document.getElementById('sr'); box.innerHTML = '';
+  if (q.length < 2) { box.style.display = 'none'; return; }
+  const hits = FARMACIAS.filter(f =>
+    f.n.toLowerCase().includes(q) || f.l.toLowerCase().includes(q) ||
+    f.a.toLowerCase().includes(q) || String(f.cp).includes(q) || String(f.id).includes(q)
+  ).slice(0, 20);
+  if (!hits.length) { box.innerHTML = '<div style="padding:10px 14px;font-size:12px;color:#64748b">Sin resultados</div>'; box.style.display = 'block'; return; }
+  hits.forEach(f => {
+    const d = document.createElement('div'); d.className = 'ri';
+    d.innerHTML = `<strong>${f.n}</strong><div class="rs">${f.a} · ${f.l}</div><span class="rid">ID: ${f.id}</span>`;
+    d.addEventListener('click', () => {
+      const item = allM.find(i => i.f.id === f.id);
+      if (item) { map.setView(item.m.getLatLng(), 17); item.m.openPopup(); }
       else showToast('Esta farmacia aún no fue geocodificada');
-      document.getElementById('sq').value='';box.style.display='none';
+      document.getElementById('sq').value = ''; box.style.display = 'none';
     });
     box.appendChild(d);
   });
-  box.style.display='block';
+  box.style.display = 'block';
 }
 
 let toastT;
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.style.opacity='1';
-  clearTimeout(toastT);toastT=setTimeout(()=>t.style.opacity='0',3000);
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.style.opacity = '1';
+  clearTimeout(toastT); toastT = setTimeout(() => t.style.opacity = '0', 3000);
 }
 
-function loadCache(){try{return JSON.parse(localStorage.getItem(CACHE_KEY)||'{}');}catch{return {};}}
-function saveCache(c){try{localStorage.setItem(CACHE_KEY,JSON.stringify(c));}catch{}}
+function loadCache() { try { return JSON.parse(localStorage.getItem(CACHE_KEY)||'{}'); } catch { return {}; } }
+function saveCache(c) { try { localStorage.setItem(CACHE_KEY, JSON.stringify(c)); } catch {} }
 
-function addMarker(f,lat,lng){
-  const color=PROV_COLORS[f.p]||'#94a3b8';
-  const m=L.marker([lat,lng],{icon:mkDot(color)});
-  m.bindPopup(popupHtml(f,lat,lng),{maxWidth:280});
-  allM.push({m,f});
-  cluster.addLayer(m);
+function addMarker(f, lat, lng) {
+  const color = PROV_COLORS[f.p] || '#94a3b8';
+  const m = L.marker([lat, lng], {icon: mkDot(color)});
+  m.bindPopup(popupHtml(f, lat, lng), {maxWidth: 280});
+  allM.push({m, f});
+  getCluster(f.p).addLayer(m);
 }
 
-async function geocodeOne(f,cache){
-  if(cache[f.id]) return cache[f.id];
-  const queries=[
+async function geocodeOne(f, cache) {
+  if (cache[f.id]) return cache[f.id];
+  const queries = [
     `${f.a}, ${f.l}, ${f.p}, Argentina`,
     `${f.a}, ${f.l}, Argentina`,
     `${f.l}, ${f.p}, Argentina`,
   ];
-  for(const q of queries){
-    try{
-      const url=`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1&countrycodes=ar`;
-      const res=await fetch(url,{headers:{'Accept-Language':'es','User-Agent':'FarmaciasMap/3.0'}});
-      const data=await res.json();
-      if(data.length>0){
-        const r={lat:parseFloat(data[0].lat),lng:parseFloat(data[0].lon),ok:true,q};
-        cache[f.id]=r;return r;
+  for (const q of queries) {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1&countrycodes=ar`;
+      const res = await fetch(url, {headers:{'Accept-Language':'es','User-Agent':'FarmaciasMap/3.0'}});
+      const data = await res.json();
+      if (data.length > 0) {
+        const r = {lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), ok: true, q};
+        cache[f.id] = r; return r;
       }
-    }catch{}
-    await new Promise(r=>setTimeout(r,200));
+    } catch {}
+    await new Promise(r => setTimeout(r, 200));
   }
-  const r={lat:null,lng:null,ok:false};cache[f.id]=r;return r;
+  const r = {lat:null, lng:null, ok:false}; cache[f.id] = r; return r;
 }
 
-// Coordenadas manuales para las 67 no encontradas por Nominatim
-const MANUAL={
-  8221:{lat:-34.552,lng:-58.549,ok:true},103141:{lat:-23.93,lng:-65.435,ok:true},
-  103085:{lat:-33.675,lng:-65.46,ok:true},3222:{lat:-34.505,lng:-58.635,ok:true},
-  103384:{lat:-32.125,lng:-64.745,ok:true},101562:{lat:-33.49,lng:-60.01,ok:true},
-  101936:{lat:-34.92,lng:-61.575,ok:true},14134:{lat:-22.245,lng:-63.715,ok:true},
-  115901:{lat:-38.745,lng:-61.82,ok:true},109688:{lat:-33.005,lng:-68.82,ok:true},
-  171089:{lat:-33.08,lng:-68.875,ok:true},150276:{lat:-32.71,lng:-60.745,ok:true},
-  171091:{lat:-32.825,lng:-60.71,ok:true},13805:{lat:-34.455,lng:-58.74,ok:true},
-  150668:{lat:-33.22,lng:-60.37,ok:true},122713:{lat:-35.595,lng:-63.595,ok:true},
-  106908:{lat:-32.56,lng:-63.49,ok:true},7182:{lat:-34.48,lng:-58.625,ok:true},
-  171043:{lat:-30.42,lng:-61.985,ok:true},103668:{lat:-32.125,lng:-64.745,ok:true},
-  171042:{lat:-26.075,lng:-65.975,ok:true},111023:{lat:-32.965,lng:-62.245,ok:true},
-  108539:{lat:-35.475,lng:-69.585,ok:true},113169:{lat:-32.8,lng:-62.1,ok:true},
-  103585:{lat:-37.91,lng:-57.52,ok:true},9329:{lat:-37.59,lng:-57.745,ok:true},
-  13319:{lat:-34.515,lng:-58.755,ok:true},150101:{lat:-31.395,lng:-61.655,ok:true},
-  8263:{lat:-34.61,lng:-58.56,ok:true},150508:{lat:-33.29,lng:-60.66,ok:true},
-  11625:{lat:-23.81,lng:-64.795,ok:true},171045:{lat:-32.795,lng:-60.415,ok:true},
-  171085:{lat:-32.685,lng:-61.565,ok:true},150708:{lat:-34.75,lng:-58.235,ok:true},
-  13227:{lat:-34.39,lng:-58.735,ok:true},108284:{lat:-33.675,lng:-65.46,ok:true},
-  12412:{lat:-28.47,lng:-65.78,ok:true},151092:{lat:-32.465,lng:-61.55,ok:true},
-  116914:{lat:-35.595,lng:-63.595,ok:true},12401:{lat:-25.095,lng:-64.16,ok:true},
-  12363:{lat:-29.41,lng:-66.855,ok:true},7518:{lat:-34.65,lng:-58.78,ok:true},
-  151337:{lat:-33.4,lng:-61.625,ok:true},13394:{lat:-24.1858,lng:-65.2994,ok:true},
-  8985:{lat:-34.61,lng:-58.56,ok:true},8248:{lat:-34.65,lng:-58.665,ok:true},
-  6650:{lat:-34.435,lng:-58.87,ok:true},12414:{lat:-28.47,lng:-65.78,ok:true},
-  108127:{lat:-31.515,lng:-64.055,ok:true},116491:{lat:-34.665,lng:-58.425,ok:true},
-  107036:{lat:-31.377,lng:-64.198,ok:true},107265:{lat:-31.4167,lng:-64.1833,ok:true},
-  12337:{lat:-24.1858,lng:-65.2994,ok:true},12987:{lat:-34.7381,lng:-58.3981,ok:true},
-  7868:{lat:-34.49,lng:-58.705,ok:true},116892:{lat:-38.095,lng:-62.23,ok:true},
-  113601:{lat:-30.35,lng:-62.015,ok:true},103547:{lat:-31.515,lng:-64.055,ok:true},
-  11628:{lat:-23.81,lng:-64.795,ok:true},13498:{lat:-34.46,lng:-58.91,ok:true},
-  122714:{lat:-35.595,lng:-63.595,ok:true},107704:{lat:-31.71,lng:-63.545,ok:true},
-  111943:{lat:-31.69,lng:-63.585,ok:true},101918:{lat:-34.92,lng:-61.575,ok:true},
-  171087:{lat:-32.875,lng:-60.695,ok:true},102419:{lat:-36.65,lng:-64.35,ok:true},
-  10106:{lat:-26.665,lng:-65.345,ok:true},
-};
+const MANUAL={8221:{lat:-34.552,lng:-58.549,ok:true},103141:{lat:-23.93,lng:-65.435,ok:true},103085:{lat:-33.675,lng:-65.46,ok:true},3222:{lat:-34.505,lng:-58.635,ok:true},103384:{lat:-32.125,lng:-64.745,ok:true},101562:{lat:-33.49,lng:-60.01,ok:true},101936:{lat:-34.92,lng:-61.575,ok:true},14134:{lat:-22.245,lng:-63.715,ok:true},115901:{lat:-38.745,lng:-61.82,ok:true},109688:{lat:-33.005,lng:-68.82,ok:true},171089:{lat:-33.08,lng:-68.875,ok:true},150276:{lat:-32.71,lng:-60.745,ok:true},171091:{lat:-32.825,lng:-60.71,ok:true},13805:{lat:-34.455,lng:-58.74,ok:true},150668:{lat:-33.22,lng:-60.37,ok:true},122713:{lat:-35.595,lng:-63.595,ok:true},106908:{lat:-32.56,lng:-63.49,ok:true},7182:{lat:-34.48,lng:-58.625,ok:true},171043:{lat:-30.42,lng:-61.985,ok:true},103668:{lat:-32.125,lng:-64.745,ok:true},171042:{lat:-26.075,lng:-65.975,ok:true},111023:{lat:-32.965,lng:-62.245,ok:true},108539:{lat:-35.475,lng:-69.585,ok:true},113169:{lat:-32.8,lng:-62.1,ok:true},103585:{lat:-37.91,lng:-57.52,ok:true},9329:{lat:-37.59,lng:-57.745,ok:true},13319:{lat:-34.515,lng:-58.755,ok:true},150101:{lat:-31.395,lng:-61.655,ok:true},8263:{lat:-34.61,lng:-58.56,ok:true},150508:{lat:-33.29,lng:-60.66,ok:true},11625:{lat:-23.81,lng:-64.795,ok:true},171045:{lat:-32.795,lng:-60.415,ok:true},171085:{lat:-32.685,lng:-61.565,ok:true},150708:{lat:-34.75,lng:-58.235,ok:true},13227:{lat:-34.39,lng:-58.735,ok:true},108284:{lat:-33.675,lng:-65.46,ok:true},12412:{lat:-28.47,lng:-65.78,ok:true},151092:{lat:-32.465,lng:-61.55,ok:true},116914:{lat:-35.595,lng:-63.595,ok:true},12401:{lat:-25.095,lng:-64.16,ok:true},12363:{lat:-29.41,lng:-66.855,ok:true},7518:{lat:-34.65,lng:-58.78,ok:true},151337:{lat:-33.4,lng:-61.625,ok:true},13394:{lat:-24.1858,lng:-65.2994,ok:true},8985:{lat:-34.61,lng:-58.56,ok:true},8248:{lat:-34.65,lng:-58.665,ok:true},6650:{lat:-34.435,lng:-58.87,ok:true},12414:{lat:-28.47,lng:-65.78,ok:true},108127:{lat:-31.515,lng:-64.055,ok:true},116491:{lat:-34.665,lng:-58.425,ok:true},107036:{lat:-31.377,lng:-64.198,ok:true},107265:{lat:-31.4167,lng:-64.1833,ok:true},12337:{lat:-24.1858,lng:-65.2994,ok:true},12987:{lat:-34.7381,lng:-58.3981,ok:true},7868:{lat:-34.49,lng:-58.705,ok:true},116892:{lat:-38.095,lng:-62.23,ok:true},113601:{lat:-30.35,lng:-62.015,ok:true},103547:{lat:-31.515,lng:-64.055,ok:true},11628:{lat:-23.81,lng:-64.795,ok:true},13498:{lat:-34.46,lng:-58.91,ok:true},122714:{lat:-35.595,lng:-63.595,ok:true},107704:{lat:-31.71,lng:-63.545,ok:true},111943:{lat:-31.69,lng:-63.585,ok:true},101918:{lat:-34.92,lng:-61.575,ok:true},171087:{lat:-32.875,lng:-60.695,ok:true},102419:{lat:-36.65,lng:-64.35,ok:true},10106:{lat:-26.665,lng:-65.345,ok:true}};
 
-async function geocodeAll(){
-  const cache=loadCache();
-  // Inyectar manuales
-  for(const [id,coords] of Object.entries(MANUAL)){
-    if(!cache[id]||!cache[id].ok) cache[id]=coords;
+async function geocodeAll() {
+  const cache = loadCache();
+  for (const [id,coords] of Object.entries(MANUAL)) {
+    if (!cache[id] || !cache[id].ok) cache[id] = coords;
   }
   saveCache(cache);
 
-  let ok=0,fail=0,total=FARMACIAS.length;
-  for(const f of FARMACIAS){
-    if(cache[f.id]?.ok){addMarker(f,cache[f.id].lat,cache[f.id].lng);ok++;}
-    else if(cache[f.id]?.ok===false){fail++;}
+  let ok=0, fail=0, total=FARMACIAS.length;
+  for (const f of FARMACIAS) {
+    if (cache[f.id]?.ok) { addMarker(f, cache[f.id].lat, cache[f.id].lng); ok++; }
+    else if (cache[f.id]?.ok === false) { fail++; }
   }
-  const pending=FARMACIAS.filter(f=>!cache[f.id]);
-  document.getElementById('h-ok').textContent=ok;
-  document.getElementById('h-fail').textContent=fail;
-  document.getElementById('h-total').textContent=(ok+fail).toLocaleString();
+  const pending = FARMACIAS.filter(f => !cache[f.id]);
+  document.getElementById('h-ok').textContent = ok;
+  document.getElementById('h-fail').textContent = fail;
+  document.getElementById('h-total').textContent = (ok+fail).toLocaleString();
 
-  if(pending.length===0){
-    document.getElementById('progress-wrap').style.display='none';
-    map.addLayer(cluster);
-    document.getElementById('sb-count').textContent=allM.length.toLocaleString();
-    document.getElementById('statusbar').style.display='block';
+  if (pending.length === 0) {
+    document.getElementById('progress-wrap').style.display = 'none';
+    document.getElementById('sb-count').textContent = allM.length.toLocaleString();
+    document.getElementById('statusbar').style.display = 'block';
     showToast(`✅ ${ok.toLocaleString()} farmacias cargadas al instante`);
     return;
   }
 
-  map.addLayer(cluster);
-  let done=ok+fail;
-  for(let i=0;i<pending.length;i++){
-    const f=pending[i];
-    const r=await geocodeOne(f,cache);
+  let done = ok + fail;
+  for (let i=0; i<pending.length; i++) {
+    const f = pending[i];
+    const r = await geocodeOne(f, cache);
     done++;
-    if(r.ok){ok++;addMarker(f,r.lat,r.lng);}else{fail++;}
-    const pct=Math.round(done/total*100);
-    document.getElementById('prog-bar').style.width=pct+'%';
-    document.getElementById('prog-text').textContent=`${done.toLocaleString()} de ${total.toLocaleString()} procesadas`;
-    document.getElementById('prog-current').textContent=`Buscando: ${f.a}, ${f.l}`;
-    document.getElementById('ps-ok').textContent=ok.toLocaleString();
-    document.getElementById('ps-pct').textContent=pct+'%';
-    document.getElementById('h-ok').textContent=ok.toLocaleString();
-    document.getElementById('h-fail').textContent=fail.toLocaleString();
-    document.getElementById('h-total').textContent=done.toLocaleString();
-    if(i%20===0) saveCache(cache);
-    await new Promise(r2=>setTimeout(r2,1100));
+    if (r.ok) { ok++; addMarker(f, r.lat, r.lng); } else { fail++; }
+    const pct = Math.round(done/total*100);
+    document.getElementById('prog-bar').style.width = pct+'%';
+    document.getElementById('prog-text').textContent = `${done.toLocaleString()} de ${total.toLocaleString()} procesadas`;
+    document.getElementById('prog-current').textContent = `Buscando: ${f.a}, ${f.l}`;
+    document.getElementById('ps-ok').textContent = ok.toLocaleString();
+    document.getElementById('ps-pct').textContent = pct+'%';
+    document.getElementById('h-ok').textContent = ok.toLocaleString();
+    document.getElementById('h-fail').textContent = fail.toLocaleString();
+    document.getElementById('h-total').textContent = done.toLocaleString();
+    if (i%20 === 0) saveCache(cache);
+    await new Promise(r2 => setTimeout(r2, 1100));
   }
   saveCache(cache);
-  document.getElementById('progress-wrap').style.display='none';
-  document.getElementById('sb-count').textContent=allM.length.toLocaleString();
-  document.getElementById('statusbar').style.display='block';
-  showToast(`✅ ${ok.toLocaleString()} farmacias ubicadas · ${fail} sin resultado`);
+  document.getElementById('progress-wrap').style.display = 'none';
+  document.getElementById('sb-count').textContent = allM.length.toLocaleString();
+  document.getElementById('statusbar').style.display = 'block';
+  showToast(`✅ ${ok.toLocaleString()} farmacias ubicadas`);
 }
 
 geocodeAll();
