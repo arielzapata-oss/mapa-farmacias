@@ -53,6 +53,34 @@ header p{font-size:11px;opacity:.7;margin-top:1px}
 </style>
 </head>
 <body>
+
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0f172a;display:flex;align-items:center;justify-content:center;z-index:99999">
+  <div style="background:#1e293b;border:1px solid #334155;padding:40px 36px;border-radius:14px;text-align:center;width:320px;box-shadow:0 20px 60px rgba(0,0,0,.6)">
+    <div style="font-size:32px;margin-bottom:8px">🗺️</div>
+    <h2 style="color:#e2e8f0;font-size:18px;font-weight:700;margin-bottom:6px;font-family:'Segoe UI',Arial,sans-serif">Farmacias Activas</h2>
+    <p style="color:#94a3b8;font-size:13px;margin-bottom:24px;font-family:'Segoe UI',Arial,sans-serif">Ingresá la contraseña para continuar</p>
+    <input id="pass-input" type="password" placeholder="Contraseña" style="width:100%;padding:11px 14px;border:1px solid #475569;border-radius:8px;font-size:14px;outline:none;color:#e2e8f0;background:#334155;box-sizing:border-box;margin-bottom:12px;font-family:'Segoe UI',Arial,sans-serif"/>
+    <button onclick="checkPass()" style="width:100%;padding:11px;background:#2563eb;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Segoe UI',Arial,sans-serif">Ingresar</button>
+    <p id="error-msg" style="color:#f87171;font-size:12px;margin-top:10px;display:none;font-family:'Segoe UI',Arial,sans-serif">Contraseña incorrecta</p>
+  </div>
+</div>
+<script>
+  function checkPass(){
+    const input=document.getElementById('pass-input').value;
+    if(input==='TU_CONTRASEÑA_ACA'){
+      document.getElementById('login-overlay').style.display='none';
+    } else {
+      document.getElementById('error-msg').style.display='block';
+    }
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    document.getElementById('pass-input').addEventListener('keypress',function(e){
+      if(e.key==='Enter') checkPass();
+    });
+  });
+</script>
+
 <header>
   <div>
     <h1>📍 Farmacias Activas — Argentina</h1>
