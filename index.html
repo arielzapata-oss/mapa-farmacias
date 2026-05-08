@@ -25,12 +25,18 @@ header p{font-size:11px;opacity:.8;margin-top:1px}
 .sw input{width:100%;padding:7px 10px;border:1px solid #475569;border-radius:6px;font-size:12px;outline:none;color:#e2e8f0;background:#334155}
 .sw input::placeholder{color:#64748b}
 .sw input:focus{border-color:#2563eb}
-#sr{max-height:200px;overflow-y:auto;display:none;border-bottom:1px solid #334155}
+#sr{max-height:350px;overflow-y:auto;display:none;border-bottom:1px solid #334155}
 .ri{padding:7px 14px;font-size:11px;border-bottom:1px solid #1e293b;cursor:pointer;transition:background .1s}
 .ri:hover{background:#0f172a}
 .ri strong{display:block;color:#e2e8f0;font-size:11.5px}
 .ri .rs{color:#64748b;font-size:10px}
 .ri .rid{display:inline-block;background:#1d4ed8;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin-top:2px}
+.ri-group{padding:8px 14px;background:#0f172a;border-bottom:1px solid #334155;cursor:pointer;transition:background .1s}
+.ri-group:hover{background:#1e3a5f}
+.ri-group .rg-name{color:#60a5fa;font-size:12px;font-weight:700}
+.ri-group .rg-count{color:#94a3b8;font-size:10px;margin-top:1px}
+.ri-group .rg-badge{display:inline-block;background:#2563eb;color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;margin-left:6px}
+.sr-section{padding:5px 14px 3px;font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.8px;background:#0f172a;border-bottom:1px solid #1e293b}
 .fblock{padding:10px 12px;border-bottom:1px solid #334155;flex-shrink:0}
 .fblock label{display:block;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
 .fblock select{width:100%;padding:6px 8px;border:1px solid #475569;border-radius:6px;font-size:12px;outline:none;color:#e2e8f0;background:#334155}
@@ -141,11 +147,15 @@ function checkPwd(){
 <div id="layout">
  <div id="sb">
   <div class="sbt">Buscar farmacia, localidad o ID</div>
-  <div class="sw"><input id="sq" type="text" placeholder="Nombre, dirección, CP o ID..." oninput="doSearch()"></div>
+  <div class="sw"><input id="sq" type="text" placeholder="Nombre, localidad, dirección, CP o ID..." oninput="doSearch()"></div>
   <div id="sr"></div>
   <div class="fblock">
     <label>Filtrar por Provincia</label>
     <select id="psel" onchange="filterByProv()"><option value="">— Todas las provincias —</option><option value="BUENOS AIRES">Buenos aires (1267)</option><option value="CORDOBA">Cordoba (547)</option><option value="SANTA FE">Santa fe (282)</option><option value="CIUDAD AUTONOMA DE BUENOS AIRES">Ciudad autonoma de buenos aires (241)</option><option value="TUCUMAN">Tucuman (102)</option><option value="SALTA">Salta (91)</option><option value="SAN JUAN">San juan (84)</option><option value="MENDOZA">Mendoza (83)</option><option value="LA PAMPA">La pampa (81)</option><option value="SAN LUIS">San luis (72)</option><option value="JUJUY">Jujuy (56)</option><option value="ENTRE RIOS">Entre rios (22)</option><option value="SANTIAGO DEL ESTERO">Santiago del estero (20)</option><option value="RIO NEGRO">Rio negro (19)</option><option value="NEUQUEN">Neuquen (17)</option><option value="MISIONES">Misiones (15)</option><option value="LA RIOJA">La rioja (14)</option><option value="CATAMARCA">Catamarca (11)</option><option value="CHUBUT">Chubut (9)</option><option value="CHACO">Chaco (3)</option><option value="CORRIENTES">Corrientes (3)</option><option value="CÓRDOBA">Córdoba (2)</option><option value="SANTA FÉ">Santa fé (1)</option><option value="CIUDAD AUTÓNOMA DE BUENOS AIRES">Ciudad autónoma de buenos aires (1)</option><option value="FORMOSA">Formosa (1)</option></select>
+  </div>
+  <div class="fblock">
+    <label>Filtrar por Localidad / Barrio</label>
+    <select id="locsel" onchange="filterByLoc()"><option value="">— Todas las localidades —</option><option value="25 DE MAYO">25 de mayo (4)</option><option value="9 DE JULIO">9 de julio (11)</option><option value="ACEBAL">Acebal (1)</option><option value="ADOLFO ALSINA">Adolfo alsina (6)</option><option value="ADROGUE">Adrogue (2)</option><option value="AGUARAY">Aguaray (2)</option><option value="AGUILARES">Aguilares (5)</option><option value="AGUSTIN ROCA">Agustin roca (1)</option><option value="ALBARRACIN">Albarracin (1)</option><option value="ALBERTI">Alberti (1)</option><option value="ALCIRA ESTACIÓN GIGENA">Alcira estación gigena (1)</option><option value="ALEJANDRO ROCA">Alejandro roca (3)</option><option value="ALLEN">Allen (3)</option><option value="ALMAFUERTE">Almafuerte (1)</option><option value="ALMAGRO">Almagro (1)</option><option value="ALMIRANTE BROWN">Almirante brown (13)</option><option value="ALPACHIRI">Alpachiri (1)</option><option value="ALTA GRACIA">Alta gracia (6)</option><option value="ALTA ITALIA">Alta italia (1)</option><option value="ALTO ALEGRE">Alto alegre (1)</option><option value="ALTO NUESTRA SEÑORA DEL VALLE">Alto nuestra señora del valle (1)</option><option value="AMÉRICA">América (5)</option><option value="ANDINO">Andino (1)</option><option value="ANISACATE">Anisacate (1)</option><option value="ARBOLEDA">Arboleda (1)</option><option value="ARENAZA">Arenaza (1)</option><option value="ARIAS">Arias (2)</option><option value="ARMSTRONG">Armstrong (5)</option><option value="ARROYITO">Arroyito (4)</option><option value="ARROYO SECO">Arroyo seco (2)</option><option value="AUSONIA">Ausonia (1)</option><option value="AVELLANEDA">Avellaneda (20)</option><option value="AYACUCHO">Ayacucho (1)</option><option value="AZUL">Azul (5)</option><option value="BAHÍA BLANCA">Bahía blanca (9)</option><option value="BALCARCE">Balcarce (2)</option><option value="BALLESTEROS">Ballesteros (2)</option><option value="BALVANERA">Balvanera (1)</option><option value="BANDA DEL RÍO SALÍ">Banda del río salí (1)</option><option value="BANFIELD">Banfield (13)</option><option value="BARADERO">Baradero (2)</option><option value="BARILOCHE">Bariloche (1)</option><option value="BARRIO BATAN">Barrio batan (1)</option><option value="BARRIO DEL LIBERTADOR">Barrio del libertador (1)</option><option value="BARRIO OBRERO RAWSON">Barrio obrero rawson (3)</option><option value="BARRIO VILLA SALADILLO">Barrio villa saladillo (2)</option><option value="BELÉN DE ESCOBAR">Belén de escobar (4)</option><option value="BELL VILLE">Bell ville (12)</option><option value="BELLA VISTA">Bella vista (5)</option><option value="BENAVIDEZ">Benavidez (3)</option><option value="BENITO JUÁREZ">Benito juárez (4)</option><option value="BERAZATEGUI">Berazategui (15)</option><option value="BERISSO">Berisso (5)</option><option value="BERNAL">Bernal (1)</option><option value="BERNAL ESTE">Bernal este (1)</option><option value="BERNAL OESTE">Bernal oeste (3)</option><option value="BERNARDO LARROUDE">Bernardo larroude (1)</option><option value="BERROTARAN">Berrotaran (3)</option><option value="BERUTI">Beruti (1)</option><option value="BIALET MASSE">Bialet masse (1)</option><option value="BIEDMA">Biedma (1)</option><option value="BIGAND">Bigand (2)</option><option value="BOLÍVAR">Bolívar (6)</option><option value="BOMBAL">Bombal (2)</option><option value="BONIFACIO">Bonifacio (1)</option><option value="BOSQUES">Bosques (1)</option><option value="BOULOGNE">Boulogne (2)</option><option value="BOWEN">Bowen (1)</option><option value="BRAGADO">Bragado (8)</option><option value="BRANDSEN">Brandsen (3)</option><option value="BRINKMANN">Brinkmann (1)</option><option value="BUENOS AIRES">Buenos aires (5)</option><option value="BURZACO">Burzaco (3)</option><option value="CABILDO">Cabildo (1)</option><option value="CAFAYATE">Cafayate (3)</option><option value="CALAMUCHITA">Calamuchita (5)</option><option value="CALEUFU">Caleufu (1)</option><option value="CAMILO ALDAO">Camilo aldao (1)</option><option value="CAMPANA">Campana (7)</option><option value="CAMPO QUIJANO">Campo quijano (1)</option><option value="CANALS">Canals (1)</option><option value="CAÑADA DEL UCLE">Cañada del ucle (1)</option><option value="CAÑADA ROSQUIN">Cañada rosquin (2)</option><option value="CAÑADA SECA">Cañada seca (1)</option><option value="CAÑUELAS">Cañuelas (4)</option><option value="CAPILLA DEL MONTE">Capilla del monte (2)</option><option value="CAPILLA DEL SEÑOR">Capilla del señor (1)</option><option value="CAPITAL">Capital (87)</option><option value="CAPITÁN BERMÚDEZ">Capitán bermúdez (3)</option><option value="CAPITÁN SARMIENTO">Capitán sarmiento (3)</option><option value="CARHUE">Carhue (1)</option><option value="CARLOS CASARES">Carlos casares (7)</option><option value="CARLOS SPEGAZZINI">Carlos spegazzini (1)</option><option value="CARLOS TEJEDOR">Carlos tejedor (2)</option><option value="CARMEN DE ARECO">Carmen de areco (1)</option><option value="CARPINTERÍA">Carpintería (2)</option><option value="CARRILOBO">Carrilobo (1)</option><option value="CARRODILLA LA PUNTILLA">Carrodilla la puntilla (1)</option><option value="CASBAS">Casbas (2)</option><option value="CASEROS">Caseros (10)</option><option value="CASILDA">Casilda (5)</option><option value="CASTELAR">Castelar (2)</option><option value="CASTELLANOS">Castellanos (4)</option><option value="CASTELLI">Castelli (1)</option><option value="CATRILÓ">Catriló (1)</option><option value="CAUCETE">Caucete (2)</option><option value="CERES">Ceres (6)</option><option value="CERRILLOS">Cerrillos (4)</option><option value="CHABAS">Chabas (2)</option><option value="CHACABUCO">Chacabuco (9)</option><option value="CHACRAS DE CORIA">Chacras de coria (1)</option><option value="CHACRAS DE VICTORICA">Chacras de victorica (1)</option><option value="CHAJARI">Chajari (1)</option><option value="CHAMICAL">Chamical (1)</option><option value="CHAÑAR LADEADO">Chañar ladeado (1)</option><option value="CHASCOMUS">Chascomus (5)</option><option value="CHASCOMÚS">Chascomús (1)</option><option value="CHICALCO">Chicalco (1)</option><option value="CHICLIGASTA">Chicligasta (1)</option><option value="CHILECITO">Chilecito (1)</option><option value="CHILIBROSTE">Chilibroste (1)</option><option value="CHIMBAS">Chimbas (5)</option><option value="CHIVILCOY">Chivilcoy (12)</option><option value="CHUMBICHA">Chumbicha (1)</option><option value="CINTRA">Cintra (1)</option><option value="CIPOLLETTI">Cipolletti (2)</option><option value="CITY BELL">City bell (5)</option><option value="CIUDAD AUTÓNOMA DE BUENOS AIRES">Ciudad autónoma de buenos aires (239)</option><option value="CIUDAD EVITA">Ciudad evita (3)</option><option value="CIUDAD JARDÍN DEL PALOMAR">Ciudad jardín del palomar (3)</option><option value="CIUDAD MADERO">Ciudad madero (2)</option><option value="CIUDADELA">Ciudadela (3)</option><option value="CLASON">Clason (1)</option><option value="CLAYPOLE">Claypole (3)</option><option value="COLAZO">Colazo (2)</option><option value="COLON">Colon (6)</option><option value="COLÓN">Colón (11)</option><option value="COLONIA ALVEAR">Colonia alvear (1)</option><option value="COLONIA CAROYA">Colonia caroya (1)</option><option value="COLONIA HINOJO">Colonia hinojo (1)</option><option value="COLONIA SAN BARTOLOMÉ">Colonia san bartolomé (1)</option><option value="COMANDANTE FERNÁNDEZ">Comandante fernández (1)</option><option value="COMODORO RIVADAVIA">Comodoro rivadavia (3)</option><option value="COMUNA 2">Comuna 2 (1)</option><option value="CONCARAN">Concaran (2)</option><option value="CONCEPCIÓN">Concepción (11)</option><option value="CONFLUENCIA">Confluencia (4)</option><option value="CONSTITUCIÓN">Constitución (4)</option><option value="CÓRDOBA">Córdoba (91)</option><option value="CORONEL ARIAS">Coronel arias (1)</option><option value="CORONEL BAIGORRIA">Coronel baigorria (1)</option><option value="CORONEL BOGADO">Coronel bogado (2)</option><option value="CORONEL CHARLONE">Coronel charlone (2)</option><option value="CORONEL DE MARINA LEONARDO ROSALES">Coronel de marina leonardo rosales (3)</option><option value="CORONEL MOLDES">Coronel moldes (2)</option><option value="CORONEL PRINGLES">Coronel pringles (2)</option><option value="CORONEL SUAREZ">Coronel suarez (1)</option><option value="CORONEL SUÁREZ">Coronel suárez (5)</option><option value="CORONEL VIDAL">Coronel vidal (1)</option><option value="CORRAL DE BUSTOS">Corral de bustos (6)</option><option value="CORRALITO">Corralito (1)</option><option value="CORRIENTES">Corrientes (2)</option><option value="COSQUIN">Cosquin (2)</option><option value="COSTA SÁCATE">Costa sácate (1)</option><option value="CRUZ ALTA">Cruz alta (2)</option><option value="CRUZ DEL EJE">Cruz del eje (1)</option><option value="DALMACIO VELEZ SARSFIELD">Dalmacio velez sarsfield (1)</option><option value="DEL CARRIL">Del carril (1)</option><option value="DEL VALLE">Del valle (1)</option><option value="DESPEÑADEROS">Despeñaderos (1)</option><option value="DEVOTO">Devoto (1)</option><option value="DIAMANTE">Diamante (1)</option><option value="DÍAZ">Díaz (1)</option><option value="DOCK SUD">Dock sud (1)</option><option value="DOCTOR MANUEL BELGRANO">Doctor manuel belgrano (15)</option><option value="DOLORES">Dolores (3)</option><option value="DON TORCUATO">Don torcuato (4)</option><option value="DOS ACEQUIAS">Dos acequias (1)</option><option value="DUDIGNAC">Dudignac (1)</option><option value="EDUARDO CASTEX">Eduardo castex (5)</option><option value="EL ALAMITO">El alamito (1)</option><option value="EL CARMEN">El carmen (5)</option><option value="EL GALPON">El galpon (1)</option><option value="EL JAGUEL">El jaguel (3)</option><option value="EL MANANTIAL">El manantial (1)</option><option value="EL PALOMAR">El palomar (1)</option><option value="EL QATO">El qato (2)</option><option value="EL TÍO">El tío (1)</option><option value="EL TRIUNFO">El triunfo (1)</option><option value="ELDORADO">Eldorado (5)</option><option value="ELENA">Elena (4)</option><option value="ELORTONDO">Elortondo (2)</option><option value="EMBAJADOR MARTINI">Embajador martini (1)</option><option value="ENSENADA">Ensenada (4)</option><option value="ESCOBAR">Escobar (9)</option><option value="ESCUELA 193">Escuela 193 (1)</option><option value="ESPERANZA">Esperanza (1)</option><option value="ESTACIÓN CHRISTOPHERSEN">Estación christophersen (1)</option><option value="ESTACIÓN GENERAL PAZ">Estación general paz (1)</option><option value="ESTACIÓN LINCOLN">Estación lincoln (16)</option><option value="ESTACIÓN PERICO">Estación perico (1)</option><option value="ESTACIÓN VILLA CONSTITUCIÓN">Estación villa constitución (3)</option><option value="ESTEBAN ECHEVERRÍA">Esteban echeverría (10)</option><option value="ETRURIA">Etruria (2)</option><option value="EZEIZA">Ezeiza (3)</option><option value="EZPELETA ESTE">Ezpeleta este (3)</option><option value="EZPELETA OESTE">Ezpeleta oeste (1)</option><option value="FAMAILLA">Famailla (2)</option><option value="FAMAILLÁ">Famaillá (1)</option><option value="FIGHIERA">Fighiera (1)</option><option value="FIRMAT">Firmat (3)</option><option value="FLORENCIO VARELA">Florencio varela (5)</option><option value="FLORENCIO VÁRELA">Florencio várela (10)</option><option value="FLORES">Flores (1)</option><option value="FLORIDA">Florida (3)</option><option value="FORMOSA">Formosa (1)</option><option value="FRAGA">Fraga (1)</option><option value="FRANCISCO ALVAREZ">Francisco alvarez (3)</option><option value="FRAY LUIS BELTRAN">Fray luis beltran (1)</option><option value="FUNES">Funes (2)</option><option value="GALVEZ">Galvez (2)</option><option value="GBA NORTE">Gba norte (5)</option><option value="GBA OESTE">Gba oeste (3)</option><option value="GBA SUR">Gba sur (16)</option><option value="GENERAL ALVARADO">General alvarado (1)</option><option value="GENERAL ALVEAR">General alvear (1)</option><option value="GENERAL BALDISSERA">General baldissera (1)</option><option value="GENERAL CABRERA">General cabrera (7)</option><option value="GENERAL DEHEZA">General deheza (4)</option><option value="GENERAL GUIDO">General guido (1)</option><option value="GENERAL GUTIÉRREZ">General gutiérrez (1)</option><option value="GENERAL JOSÉ DE SAN MARTÍN">General josé de san martín (2)</option><option value="GENERAL LAGOS">General lagos (1)</option><option value="GENERAL LEVALLE">General levalle (2)</option><option value="GENERAL LÓPEZ">General lópez (8)</option><option value="GENERAL O BRIEN">General o brien (1)</option><option value="GENERAL PACHECO">General pacheco (3)</option><option value="GENERAL PEDERNERA">General pedernera (4)</option><option value="GENERAL PICO">General pico (17)</option><option value="GENERAL PINTO">General pinto (2)</option><option value="GENERAL PIRAN">General piran (1)</option><option value="GENERAL PUEYRREDON">General pueyrredon (1)</option><option value="GENERAL PUEYRREDÓN">General pueyrredón (19)</option><option value="GENERAL RIVAS">General rivas (1)</option><option value="GENERAL ROCA">General roca (3)</option><option value="GENERAL RODRÍGUEZ">General rodríguez (14)</option><option value="GENERAL SAN MARTIN">General san martin (1)</option><option value="GENERAL SAN MARTÍN">General san martín (13)</option><option value="GENERAL VIAMONTE">General viamonte (3)</option><option value="GERLI">Gerli (3)</option><option value="GLEW">Glew (1)</option><option value="GODEKEN">Godeken (1)</option><option value="GODOY CRUZ">Godoy cruz (8)</option><option value="GONZÁLEZ CATAN">González catan (4)</option><option value="GOYA">Goya (1)</option><option value="GRAL MANUEL CAMPOS">Gral manuel campos (1)</option><option value="GRANADERO BAIGORRIA">Granadero baigorria (2)</option><option value="GRAND BOURG">Grand bourg (2)</option><option value="GREGORIO DE LA FERRERE">Gregorio de la ferrere (1)</option><option value="GREGORIO DE LAFERRERE">Gregorio de laferrere (8)</option><option value="GUALEGUAY">Gualeguay (2)</option><option value="GUALEGUAYCHU">Gualeguaychu (1)</option><option value="GUATIMOZIN">Guatimozin (1)</option><option value="GUATRACHE">Guatrache (1)</option><option value="GUAYMALLÉN">Guaymallén (3)</option><option value="GUILLERMO E HUDSON">Guillermo e hudson (1)</option><option value="HAEDO">Haedo (3)</option><option value="HENDERSON">Henderson (1)</option><option value="HERNANDO">Hernando (6)</option><option value="HIPOLITO BOUCHARD">Hipolito bouchard (1)</option><option value="HOLMBERG">Holmberg (1)</option><option value="HORNOS">Hornos (1)</option><option value="HUGHES">Hughes (2)</option><option value="HUILICHES">Huiliches (1)</option><option value="HUINCA RENANCO">Huinca renanco (2)</option><option value="HUMBOLDT">Humboldt (1)</option><option value="HURLINGHAM">Hurlingham (8)</option><option value="ICAÑO">Icaño (1)</option><option value="IDIAZABAL">Idiazabal (1)</option><option value="INGENIERO ADOLFO SOURDEAUX">Ingeniero adolfo sourdeaux (1)</option><option value="INGENIERO BUDGE">Ingeniero budge (3)</option><option value="INGENIERO LUIGGI">Ingeniero luiggi (3)</option><option value="INGENIERO MASCHWITZ">Ingeniero maschwitz (1)</option><option value="INRIVILLE">Inriville (3)</option><option value="INTENDENTE ALVEAR">Intendente alvear (6)</option><option value="IRIARTE">Iriarte (1)</option><option value="IRIONDO">Iriondo (3)</option><option value="ISCHILÍN">Ischilín (1)</option><option value="ISIDRO CASANOVA">Isidro casanova (4)</option><option value="ISLA VERDE">Isla verde (2)</option><option value="ITALO">Italo (2)</option><option value="ITUZAINGO">Ituzaingo (4)</option><option value="ITUZAINGÓ">Ituzaingó (5)</option><option value="JACHAL">Jachal (2)</option><option value="JÁCHAL">Jáchal (2)</option><option value="JAMES CRAIK">James craik (2)</option><option value="JAUREGUI JOSÉ MARÍA">Jauregui josé maría (3)</option><option value="JESÚS MARÍA">Jesús maría (9)</option><option value="JOAQUÍN V GONZÁLEZ">Joaquín v gonzález (1)</option><option value="JOSÉ C. PAZ">José c. paz (4)</option><option value="JOSÉ CLEMENTE PAZ">José clemente paz (9)</option><option value="JUAN BAUTISTA ALBERDI">Juan bautista alberdi (4)</option><option value="JUAN MARTÍN DE PUEYRREDÓN">Juan martín de pueyrredón (7)</option><option value="JUAN VUCETICH EX DR R LEVENE">Juan vucetich ex dr r levene (1)</option><option value="JUANA KOSLAY">Juana koslay (4)</option><option value="JUÁREZ CELMAN">Juárez celman (2)</option><option value="JUNÍN">Junín (21)</option><option value="JUSTINIANO POSSE">Justiniano posse (4)</option><option value="JUSTO DARACT">Justo daract (1)</option><option value="LA BANDA">La banda (5)</option><option value="LA CALERA">La calera (5)</option><option value="LA CAPITAL">La capital (5)</option><option value="LA CARLOTA">La carlota (3)</option><option value="LA CAUTIVA">La cautiva (1)</option><option value="LA COCHA">La cocha (1)</option><option value="LA COSTA">La costa (1)</option><option value="LA CRUZ">La cruz (1)</option><option value="LA FALDA">La falda (2)</option><option value="LA LAGUNA">La laguna (1)</option><option value="LA LIBERTAD">La libertad (1)</option><option value="LA LUCILA">La lucila (1)</option><option value="LA MATANZA">La matanza (27)</option><option value="LA MENDIETA">La mendieta (1)</option><option value="LA MERCED">La merced (2)</option><option value="LA PARA">La para (1)</option><option value="LA PASTORA">La pastora (1)</option><option value="LA PAZ">La paz (1)</option><option value="LA PLATA">La plata (81)</option><option value="LA PUERTA">La puerta (1)</option><option value="LA PUNTA">La punta (3)</option><option value="LA QUIACA">La quiaca (1)</option><option value="LA RIOJA">La rioja (9)</option><option value="LA TABLADA">La tablada (3)</option><option value="LABORDE">Laborde (1)</option><option value="LABOULAYE">Laboulaye (4)</option><option value="LÁCAR">Lácar (1)</option><option value="LAGUNA DE LOBOS">Laguna de lobos (5)</option><option value="LAGUNA LARGA">Laguna larga (3)</option><option value="LANUS">Lanus (1)</option><option value="LANÚS">Lanús (28)</option><option value="LANUS ESTE">Lanus este (1)</option><option value="LAPRIDA">Laprida (2)</option><option value="LAS ARRIAS">Las arrias (1)</option><option value="LAS COLONIAS">Las colonias (3)</option><option value="LAS FLORES">Las flores (7)</option><option value="LAS HERAS">Las heras (3)</option><option value="LAS JUNTURAS">Las junturas (2)</option><option value="LAS LAJITAS">Las lajitas (1)</option><option value="LAS PAREJAS">Las parejas (2)</option><option value="LAS PERDICES">Las perdices (2)</option><option value="LAS TALITAS">Las talitas (1)</option><option value="LAS TOSCAS">Las toscas (2)</option><option value="LAS VARILLAS">Las varillas (5)</option><option value="LEÓN ROUGES">León rouges (1)</option><option value="LEONES">Leones (4)</option><option value="LIB GRAL SAN MARTÍN">Lib gral san martín (2)</option><option value="LIBERTAD">Libertad (3)</option><option value="LINCOLN">Lincoln (1)</option><option value="LISANDRO OLMOS ETCHEVERRY">Lisandro olmos etcheverry (1)</option><option value="LLAVALLOL">Llavallol (2)</option><option value="LOBERIA">Loberia (1)</option><option value="LOBERÍA">Lobería (1)</option><option value="LOMA HERMOSA">Loma hermosa (1)</option><option value="LOMAS DE ZAMORA">Lomas de zamora (21)</option><option value="LONGCHAMPS">Longchamps (1)</option><option value="LOS CARDALES">Los cardales (3)</option><option value="LOS CONDORES">Los condores (2)</option><option value="LOS LAGOS">Los lagos (2)</option><option value="LOS MOLINOS">Los molinos (1)</option><option value="LOS MOLLES">Los molles (1)</option><option value="LOS POLVORINES">Los polvorines (1)</option><option value="LOS REARTES">Los reartes (1)</option><option value="LOS SURGENTES">Los surgentes (1)</option><option value="LOS TOLDOS">Los toldos (2)</option><option value="LOS ZORROS">Los zorros (1)</option><option value="LUIS GUILLON">Luis guillon (1)</option><option value="LUJAN">Lujan (2)</option><option value="LUJÁN">Luján (5)</option><option value="LUJAN DE CUYO">Lujan de cuyo (2)</option><option value="LUJÁN DE CUYO">Luján de cuyo (1)</option><option value="LUQUE">Luque (6)</option><option value="MAIPU">Maipu (1)</option><option value="MAIPÚ">Maipú (2)</option><option value="MALAGUEÑO">Malagueño (2)</option><option value="MALARGUE">Malargue (1)</option><option value="MALVINAS ARGENTINAS">Malvinas argentinas (10)</option><option value="MANUEL ALBERTI">Manuel alberti (1)</option><option value="MANUEL B GONNET">Manuel b gonnet (2)</option><option value="MAQUINISTA F SAVIO">Maquinista f savio (2)</option><option value="MAR CHIQUITA">Mar chiquita (1)</option><option value="MAR DEL PLATA">Mar del plata (47)</option><option value="MARACÓ">Maracó (4)</option><option value="MARCOS JUÁREZ">Marcos juárez (9)</option><option value="MARCOS PAZ">Marcos paz (1)</option><option value="MARIANO ACOSTA">Mariano acosta (2)</option><option value="MARTÍNEZ">Martínez (5)</option><option value="MARULL">Marull (1)</option><option value="MATORRALES">Matorrales (1)</option><option value="MÁXIMO PAZ">Máximo paz (2)</option><option value="MAYU SUMAJ">Mayu sumaj (1)</option><option value="MECHONGUE">Mechongue (1)</option><option value="MEDRANO">Medrano (2)</option><option value="MELCHOR ROMERO">Melchor romero (1)</option><option value="MELINCUE">Melincue (1)</option><option value="MELO">Melo (1)</option><option value="MENDOZA">Mendoza (5)</option><option value="MENDOZA CAPITAL">Mendoza capital (1)</option><option value="MERCEDES">Mercedes (4)</option><option value="MERLO">Merlo (26)</option><option value="METAN">Metan (3)</option><option value="METÁN">Metán (1)</option><option value="MINA CLAVERO">Mina clavero (4)</option><option value="MIRAMAR">Miramar (1)</option><option value="MONTE BUEY">Monte buey (5)</option><option value="MONTE CHINGOLO">Monte chingolo (4)</option><option value="MONTE COMAN">Monte coman (1)</option><option value="MONTE GRANDE">Monte grande (5)</option><option value="MONTE MAÍZ">Monte maíz (7)</option><option value="MONTECARLO">Montecarlo (1)</option><option value="MONTEROS">Monteros (5)</option><option value="MONTEROS VIEJO">Monteros viejo (1)</option><option value="MONTERRICO">Monterrico (4)</option><option value="MORENO">Moreno (21)</option><option value="MORÓN">Morón (20)</option><option value="MORRISON">Morrison (2)</option><option value="MORSE">Morse (1)</option><option value="MORTEROS">Morteros (3)</option><option value="MUNRO">Munro (2)</option><option value="NASCHEL">Naschel (1)</option><option value="NAVARRO">Navarro (1)</option><option value="NECOCHEA">Necochea (8)</option><option value="NEUQUÉN">Neuquén (6)</option><option value="NOETINGER">Noetinger (2)</option><option value="NORDELTA">Nordelta (1)</option><option value="OLAVARRÍA">Olavarría (10)</option><option value="OLIVA">Oliva (4)</option><option value="OLIVOS">Olivos (4)</option><option value="ONCATIVO">Oncativo (4)</option><option value="ORAN">Oran (3)</option><option value="ORÁN">Orán (1)</option><option value="ORO VERDE">Oro verde (1)</option><option value="OSTENDE">Ostende (1)</option><option value="PABLO NOGUES">Pablo nogues (1)</option><option value="PALPALÁ">Palpalá (1)</option><option value="PÁLPALA">Pálpala (3)</option><option value="PAMPAYASTA SUR">Pampayasta sur (2)</option><option value="PARANÁ">Paraná (11)</option><option value="PARERA">Parera (1)</option><option value="PARQUE SAN MARTÍN">Parque san martín (1)</option><option value="PASCO">Pasco (2)</option><option value="PASO DEL REY">Paso del rey (5)</option><option value="PATAGONES">Patagones (1)</option><option value="PEDERNALES">Pedernales (1)</option><option value="PEHUAJO">Pehuajo (6)</option><option value="PEHUAJÓ">Pehuajó (1)</option><option value="PELLEGRINI">Pellegrini (1)</option><option value="PERGAMINO">Pergamino (11)</option><option value="PERICO">Perico (1)</option><option value="PIGUE">Pigue (4)</option><option value="PILAR">Pilar (25)</option><option value="PINAMAR">Pinamar (3)</option><option value="PINO DE SAN LORENZO">Pino de san lorenzo (1)</option><option value="PLOTTIER">Plottier (1)</option><option value="POSADAS">Posadas (2)</option><option value="POZO DEL MOLLE">Pozo del molle (3)</option><option value="PRESIDENTE DERQUI">Presidente derqui (1)</option><option value="PUAN">Puan (1)</option><option value="PUEBLO AREQUITO">Pueblo arequito (4)</option><option value="PUEBLO ESTHER">Pueblo esther (1)</option><option value="PUEBLO ITALIANO">Pueblo italiano (1)</option><option value="PUERTO DE SAN LORENZO">Puerto de san lorenzo (2)</option><option value="PUERTO GRAL SAN MARTÍN">Puerto gral san martín (2)</option><option value="PUERTO IGUAZÚ">Puerto iguazú (3)</option><option value="PUERTO MADRYN">Puerto madryn (2)</option><option value="PUERTO RICO">Puerto rico (1)</option><option value="PUNILLA">Punilla (5)</option><option value="PUNTA ALTA">Punta alta (1)</option><option value="PUNTA LARA">Punta lara (1)</option><option value="QUEMU QUEMU">Quemu quemu (1)</option><option value="QUENUMA">Quenuma (1)</option><option value="QUEQUEN">Quequen (1)</option><option value="QUILMES">Quilmes (30)</option><option value="QUILMES OESTE">Quilmes oeste (3)</option><option value="QUIROGA">Quiroga (1)</option><option value="RADA TILLY">Rada tilly (1)</option><option value="RAFAEL CALZADA">Rafael calzada (3)</option><option value="RAFAEL OBLIGADO">Rafael obligado (1)</option><option value="RAFAELA">Rafaela (18)</option><option value="RAMALLO">Ramallo (3)</option><option value="RAMOS MEJÍA">Ramos mejía (9)</option><option value="RANCHILLOS">Ranchillos (1)</option><option value="RANCUL">Rancul (1)</option><option value="RANELAGH">Ranelagh (1)</option><option value="RAUCH">Rauch (1)</option><option value="REALICO">Realico (2)</option><option value="REALICÓ">Realicó (1)</option><option value="RECOLETA">Recoleta (1)</option><option value="RECONQUISTA">Reconquista (1)</option><option value="REDUCCIÓN">Reducción (1)</option><option value="REMEDIOS DE ESCALADA">Remedios de escalada (2)</option><option value="RESISTENCIA">Resistencia (2)</option><option value="RINCÓN DE MILBERG">Rincón de milberg (1)</option><option value="RÍO CEBALLOS">Río ceballos (4)</option><option value="RÍO CUARTO">Río cuarto (38)</option><option value="RÍO HONDO">Río hondo (1)</option><option value="RÍO PRIMERO">Río primero (3)</option><option value="RÍO SEGUNDO">Río segundo (13)</option><option value="RÍO TERCERO">Río tercero (16)</option><option value="RIVADAVIA">Rivadavia (13)</option><option value="ROBERTS">Roberts (1)</option><option value="RODEO DE LA CRUZ">Rodeo de la cruz (2)</option><option value="ROJAS">Rojas (5)</option><option value="ROLDAN">Roldan (3)</option><option value="ROSARIO">Rosario (46)</option><option value="ROSÁRIO">Rosário (11)</option><option value="ROSARIO DE LA FRONTERA">Rosario de la frontera (4)</option><option value="ROSARIO DE LERMA">Rosario de lerma (5)</option><option value="RUFINO">Rufino (1)</option><option value="SALSIPUEDES">Salsipuedes (1)</option><option value="SALTA">Salta (40)</option><option value="SALTA CAPITAL">Salta capital (1)</option><option value="SALTO">Salto (9)</option><option value="SALVADOR MAZZA">Salvador mazza (1)</option><option value="SAMPACHO">Sampacho (2)</option><option value="SAN ALBERTO">San alberto (1)</option><option value="SAN ANDRÉS">San andrés (1)</option><option value="SAN ANDRÉS DE GILES">San andrés de giles (1)</option><option value="SAN ANTONIO DE ARECO">San antonio de areco (3)</option><option value="SAN ANTONIO DE LITIN">San antonio de litin (2)</option><option value="SAN ANTONIO DE OBLIGADO">San antonio de obligado (1)</option><option value="SAN ANTONIO DE PADUA">San antonio de padua (4)</option><option value="SAN BASILIO">San basilio (1)</option><option value="SAN CARLOS">San carlos (2)</option><option value="SAN CARLOS DE BARILOCHE">San carlos de bariloche (4)</option><option value="SAN CRISTÓBAL">San cristóbal (4)</option><option value="SAN FDO DEL VALLE DE CATAMARCA">San fdo del valle de catamarca (5)</option><option value="SAN FERNANDO">San fernando (9)</option><option value="SAN FRANCISCO">San francisco (7)</option><option value="SAN FRANCISCO SOLANO">San francisco solano (1)</option><option value="SAN GENARO NORTE">San genaro norte (1)</option><option value="SAN GREGORIO">San gregorio (2)</option><option value="SAN GUILLERMO">San guillermo (3)</option><option value="SAN ISIDRO">San isidro (12)</option><option value="SAN JAVIER">San javier (1)</option><option value="SAN JERÓNIMO">San jerónimo (2)</option><option value="SAN JORGE">San jorge (4)</option><option value="SAN JOSÉ">San josé (3)</option><option value="SAN JOSÉ DE LULES">San josé de lules (2)</option><option value="SAN JOSE DE METÁN">San jose de metán (1)</option><option value="SAN JUAN">San juan (36)</option><option value="SAN JUSTO">San justo (15)</option><option value="SAN LORENZO">San lorenzo (12)</option><option value="SAN LUIS">San luis (29)</option><option value="SAN MARCOS SUD">San marcos sud (2)</option><option value="SAN MARTIN">San martin (4)</option><option value="SAN MARTÍN">San martín (3)</option><option value="SAN MARTÍN DE LAS ESCOBAS">San martín de las escobas (2)</option><option value="SAN MARTÍN DE LOS ANDES">San martín de los andes (1)</option><option value="SAN MIGUEL">San miguel (17)</option><option value="SAN MIGUEL DE TUCUMÁN">San miguel de tucumán (25)</option><option value="SAN NICOLÁS">San nicolás (8)</option><option value="SAN NICOLÁS DE LOS ARROYOS">San nicolás de los arroyos (10)</option><option value="SAN PEDRO">San pedro (12)</option><option value="SAN PEDRO DE JUJUY">San pedro de jujuy (1)</option><option value="SAN RAFAEL">San rafael (23)</option><option value="SAN RAMON DE LA NUEVA ORAN">San ramon de la nueva oran (1)</option><option value="SAN SALVADOR DE JUJUY">San salvador de jujuy (13)</option><option value="SAN VICENTE">San vicente (3)</option><option value="SANTA FE">Santa fe (21)</option><option value="SANTA ISABEL">Santa isabel (3)</option><option value="SANTA LUCIA">Santa lucia (6)</option><option value="SANTA LUCÍA">Santa lucía (1)</option><option value="SANTA MARÍA">Santa maría (6)</option><option value="SANTA ROSA">Santa rosa (16)</option><option value="SANTA ROSA DE CALAMUCHITA">Santa rosa de calamuchita (1)</option><option value="SANTA ROSA DE LEALES">Santa rosa de leales (1)</option><option value="SANTIAGO DEL ESTERO">Santiago del estero (7)</option><option value="SANTOS LUGARES">Santos lugares (1)</option><option value="SARANDI">Sarandi (1)</option><option value="SERODINO">Serodino (1)</option><option value="SERRANO">Serrano (1)</option><option value="SIMOCA">Simoca (1)</option><option value="SOLANO">Solano (1)</option><option value="SOLDINI">Soldini (1)</option><option value="SOURIGUES">Sourigues (1)</option><option value="SUARDI">Suardi (3)</option><option value="SUNCHALES">Sunchales (2)</option><option value="SUSANA">Susana (1)</option><option value="TAFI VIEJO">Tafi viejo (5)</option><option value="TAFÍ VIEJO">Tafí viejo (1)</option><option value="TALA">Tala (1)</option><option value="TANCACHA">Tancacha (1)</option><option value="TANDIL">Tandil (20)</option><option value="TAPIALES">Tapiales (2)</option><option value="TARTAGAL">Tartagal (2)</option><option value="TEMPERLEY">Temperley (6)</option><option value="TEODELINA">Teodelina (3)</option><option value="TERCERO ARRIBA">Tercero arriba (1)</option><option value="TERMAS DE RIO HONDO">Termas de rio hondo (1)</option><option value="TERMAS DE RÍO HONDO">Termas de río hondo (2)</option><option value="TIGRE">Tigre (15)</option><option value="TILISARAO">Tilisarao (3)</option><option value="TIMBUES">Timbues (1)</option><option value="TÍO PUJIO">Tío pujio (2)</option><option value="TOAY">Toay (3)</option><option value="TORNQUIST">Tornquist (2)</option><option value="TORRES">Torres (1)</option><option value="TORTUGUITAS">Tortuguitas (1)</option><option value="TRAPICHE">Trapiche (1)</option><option value="TRELEW">Trelew (2)</option><option value="TRENEL">Trenel (1)</option><option value="TRENQUE LAUQUEN">Trenque lauquen (7)</option><option value="TRES ALGARROBOS">Tres algarrobos (1)</option><option value="TRES ARROYOS">Tres arroyos (1)</option><option value="TRES DE FEBRERO">Tres de febrero (5)</option><option value="TRES HERMANOS MACACHIN">Tres hermanos macachin (1)</option><option value="TRISTÁN SUAREZ">Tristán suarez (2)</option><option value="TUNUYAN">Tunuyan (1)</option><option value="UCACHA">Ucacha (4)</option><option value="UNIÓN">Unión (4)</option><option value="UNQUILLO">Unquillo (4)</option><option value="URANGA">Uranga (1)</option><option value="URDAMPILLETA">Urdampilleta (1)</option><option value="VALENTÍN ALSINA">Valentín alsina (1)</option><option value="VEDIA">Vedia (4)</option><option value="VENADO TUERTO">Venado tuerto (6)</option><option value="VERÓNICA">Verónica (1)</option><option value="VIAMONTE">Viamonte (1)</option><option value="VICENTE LÓPEZ">Vicente lópez (12)</option><option value="VICTORIA">Victoria (3)</option><option value="VICUÑA MACKENNA">Vicuña mackenna (1)</option><option value="VIEDMA">Viedma (1)</option><option value="VILA">Vila (1)</option><option value="VILLA ABERASTAIN">Villa aberastain (1)</option><option value="VILLA ADELINA">Villa adelina (2)</option><option value="VILLA ALLENDE">Villa allende (4)</option><option value="VILLA AMELIA">Villa amelia (1)</option><option value="VILLA ASCASUBI">Villa ascasubi (3)</option><option value="VILLA BALLESTER">Villa ballester (5)</option><option value="VILLA BURRUYACU">Villa burruyacu (1)</option><option value="VILLA CAÑAS">Villa cañas (5)</option><option value="VILLA CARLOS PAZ">Villa carlos paz (4)</option><option value="VILLA CELINA">Villa celina (1)</option><option value="VILLA CONCEPCIÓN DEL TÍO">Villa concepción del tío (1)</option><option value="VILLA CONSTITUCIÓN">Villa constitución (2)</option><option value="VILLA CURA BROCHERO">Villa cura brochero (2)</option><option value="VILLA DE LAS ROSAS">Villa de las rosas (1)</option><option value="VILLA DE MAYO">Villa de mayo (1)</option><option value="VILLA DEL DIQUE">Villa del dique (1)</option><option value="VILLA DEL ROSARIO">Villa del rosario (7)</option><option value="VILLA DOLORES">Villa dolores (5)</option><option value="VILLA DOMINICO">Villa dominico (3)</option><option value="VILLA ELISA">Villa elisa (2)</option><option value="VILLA ELOISA">Villa eloisa (2)</option><option value="VILLA ESQUIU">Villa esquiu (1)</option><option value="VILLA GENERAL BELGRANO">Villa general belgrano (1)</option><option value="VILLA GESELL">Villa gesell (3)</option><option value="VILLA GOBERNADOR GALVEZ">Villa gobernador galvez (1)</option><option value="VILLA HIPÓDROMO">Villa hipódromo (1)</option><option value="VILLA HUIDOBRO">Villa huidobro (1)</option><option value="VILLA INSUPERABLE">Villa insuperable (1)</option><option value="VILLA KRAUSE">Villa krause (7)</option><option value="VILLA LA ANGOSTURA">Villa la angostura (1)</option><option value="VILLA LA FLORIDA">Villa la florida (1)</option><option value="VILLA LARCA">Villa larca (1)</option><option value="VILLA LUZURIAGA">Villa luzuriaga (3)</option><option value="VILLA LYNCH">Villa lynch (3)</option><option value="VILLA MARÍA">Villa maría (3)</option><option value="VILLA MAZA">Villa maza (1)</option><option value="VILLA MERCEDES">Villa mercedes (5)</option><option value="VILLA MOQUEHUA">Villa moquehua (1)</option><option value="VILLA MUGUETA">Villa mugueta (2)</option><option value="VILLA NUEVA">Villa nueva (2)</option><option value="VILLA QUINTEROS">Villa quinteros (1)</option><option value="VILLA REGINA">Villa regina (1)</option><option value="VILLA RIVADAVIA">Villa rivadavia (1)</option><option value="VILLA SAENZ PEÑA">Villa saenz peña (1)</option><option value="VILLA SANTA ROSA">Villa santa rosa (2)</option><option value="VILLA SANTOS TESEI">Villa santos tesei (3)</option><option value="VILLA TRINIDAD">Villa trinidad (1)</option><option value="VILLADA">Villada (1)</option><option value="VIRREY DEL PINO">Virrey del pino (2)</option><option value="VIVORATA">Vivorata (1)</option><option value="WENCESLAO ESCALANTE">Wenceslao escalante (1)</option><option value="WHEELWRIGHT">Wheelwright (4)</option><option value="WILDE">Wilde (6)</option><option value="WILLIAM MORRIS">William morris (2)</option><option value="YERBA BUENA">Yerba buena (14)</option><option value="ZARATE">Zarate (8)</option><option value="ZÁRATE">Zárate (9)</option></select>
   </div>
   <div class="fblock">
     <label>Filtrar por Código Postal</label>
@@ -287,41 +297,86 @@ POINTS.forEach(p=>{
 });
 
 // CP selector
-const cpCounts={};
-POINTS.forEach(p=>{cpCounts[p.cp]=(cpCounts[p.cp]||0)+1;});
-const cpsel=document.getElementById('cpsel');
-Object.entries(cpCounts).sort((a,b)=>b[1]-a[1]).forEach(([cp,cnt])=>{
-  const o=document.createElement('option');o.value=cp;o.textContent=`CP ${cp} (${cnt})`;cpsel.appendChild(o);
-});
+function buildCpSelector(pts){
+  const cpCounts={};
+  pts.forEach(p=>{cpCounts[p.cp]=(cpCounts[p.cp]||0)+1;});
+  const cpsel=document.getElementById('cpsel');
+  cpsel.innerHTML='<option value="">— Todos los CPs —</option>';
+  Object.entries(cpCounts).sort((a,b)=>b[1]-a[1]).forEach(([cp,cnt])=>{
+    const o=document.createElement('option');o.value=cp;o.textContent=`CP ${cp} (${cnt})`;cpsel.appendChild(o);
+  });
+}
+
+// Localidad selector
+function buildLocSelector(pts){
+  const locCounts={};
+  pts.forEach(p=>{const loc=p.l||'';if(loc)locCounts[loc]=(locCounts[loc]||0)+1;});
+  const locsel=document.getElementById('locsel');
+  locsel.innerHTML='<option value="">— Todas las localidades —</option>';
+  Object.entries(locCounts).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([loc,cnt])=>{
+    const o=document.createElement('option');o.value=loc;o.textContent=`${loc.charAt(0)+loc.slice(1).toLowerCase()} (${cnt})`;locsel.appendChild(o);
+  });
+}
+
+buildCpSelector(POINTS);
+buildLocSelector(POINTS);
 
 // Province sidebar
+let activeLoc='';
 const pvl=document.getElementById('pvl');
 const psel=document.getElementById('psel');
-Object.entries(PROV_COUNTS).forEach(([prov,count])=>{
-  const color=PROV_COLORS[prov]||'#94a3b8';
-  const card=document.createElement('div');card.className='pc';card.dataset.p=prov;
-  card.innerHTML=`<div class="pd" style="background:${color}"></div><div class="pn">${prov.charAt(0)+prov.slice(1).toLowerCase()}</div><div class="pk">${count}</div>`;
-  card.addEventListener('click',()=>{
-    const same=activeProv===prov;
-    document.querySelectorAll('.pc').forEach(c=>c.classList.remove('active'));
-    activeProv=same?'':(card.classList.add('active'),prov);
-    psel.value=activeProv;activeCp='';cpsel.value='';
-    refreshMarkers();buildLegend();
+
+function buildProvSidebar(){
+  pvl.innerHTML='';
+  psel.innerHTML='<option value="">— Todas las provincias —</option>';
+  Object.entries(PROV_COUNTS).sort((a,b)=>b[1]-a[1]).forEach(([prov,count])=>{
+    const color=PROV_COLORS[prov]||'#94a3b8';
+    const card=document.createElement('div');card.className='pc';card.dataset.p=prov;
+    card.innerHTML=`<div class="pd" style="background:${color}"></div><div class="pn">${prov.charAt(0)+prov.slice(1).toLowerCase()}</div><div class="pk">${count}</div>`;
+    card.addEventListener('click',()=>{
+      const same=activeProv===prov;
+      document.querySelectorAll('.pc').forEach(c=>c.classList.remove('active'));
+      activeProv=same?'':(card.classList.add('active'),prov);
+      psel.value=activeProv;activeCp='';activeLoc='';
+      document.getElementById('cpsel').value='';
+      document.getElementById('locsel').value='';
+      // Update loc selector to show only locs of selected province
+      if(activeProv){
+        const provPts=POINTS.filter(p=>p.p===activeProv);
+        buildLocSelector(provPts);
+      }else{
+        buildLocSelector(POINTS);
+      }
+      refreshMarkers();buildLegend();
+    });
+    pvl.appendChild(card);
+    const opt=document.createElement('option');opt.value=prov;
+    opt.textContent=`${prov.charAt(0)+prov.slice(1).toLowerCase()} (${count})`;
+    psel.appendChild(opt);
   });
-  pvl.appendChild(card);
-  const opt=document.createElement('option');opt.value=prov;
-  opt.textContent=`${prov.charAt(0)+prov.slice(1).toLowerCase()} (${count})`;
-  psel.appendChild(opt);
-});
+}
+buildProvSidebar();
 
 function filterByProv(){
-  activeProv=psel.value;activeCp='';cpsel.value='';
+  activeProv=psel.value;activeCp='';activeLoc='';
+  document.getElementById('cpsel').value='';
+  document.getElementById('locsel').value='';
   document.querySelectorAll('.pc').forEach(c=>c.classList.toggle('active',c.dataset.p===activeProv));
+  if(activeProv){
+    buildLocSelector(POINTS.filter(p=>p.p===activeProv));
+  }else{
+    buildLocSelector(POINTS);
+  }
   refreshMarkers();buildLegend();
 }
+function filterByLoc(){
+  activeLoc=document.getElementById('locsel').value;
+  activeCp='';document.getElementById('cpsel').value='';
+  refreshMarkers();
+}
 function filterByCp(){
-  activeCp=cpsel.value;activeProv='';psel.value='';
-  document.querySelectorAll('.pc').forEach(c=>c.classList.remove('active'));
+  activeCp=document.getElementById('cpsel').value;activeLoc='';
+  document.getElementById('locsel').value='';
   refreshMarkers();
 }
 
@@ -329,10 +384,11 @@ function refreshMarkers(){
   Object.values(clustersByProv).forEach(mc=>mc.clearLayers());
   let filtered=allM;
   if(activeProv) filtered=filtered.filter(i=>i.p.p===activeProv);
+  if(activeLoc)  filtered=filtered.filter(i=>i.p.l===activeLoc);
   if(activeCp)   filtered=filtered.filter(i=>String(i.p.cp)===activeCp);
   filtered.forEach(i=>getCluster(i.p.p).addLayer(i.m));
   document.getElementById('sb-count').textContent=filtered.length.toLocaleString();
-  if(filtered.length&&(activeProv||activeCp)){
+  if(filtered.length&&(activeProv||activeCp||activeLoc)){
     const lats=filtered.map(i=>i.p.lat),lngs=filtered.map(i=>i.p.lng);
     map.fitBounds([[Math.min(...lats)-.05,Math.min(...lngs)-.08],[Math.max(...lats)+.05,Math.max(...lngs)+.08]],{padding:[30,30]});
   }else map.setView([-38,-63],5);
@@ -352,9 +408,50 @@ function doSearch(){
   const q=document.getElementById('sq').value.toLowerCase().trim();
   const box=document.getElementById('sr');box.innerHTML='';
   if(q.length<2){box.style.display='none';return;}
-  const hits=POINTS.filter(p=>p.n.toLowerCase().includes(q)||p.l.toLowerCase().includes(q)||p.a.toLowerCase().includes(q)||String(p.cp).includes(q)||String(p.id).includes(q)).slice(0,20);
+
+  const hits=POINTS.filter(p=>p.n.toLowerCase().includes(q)||p.l.toLowerCase().includes(q)||p.a.toLowerCase().includes(q)||String(p.cp).includes(q)||String(p.id).includes(q));
+
   if(!hits.length){box.innerHTML='<div style="padding:10px 14px;font-size:12px;color:#94a3b8">Sin resultados</div>';box.style.display='block';return;}
+
+  // Group by localidad
+  const locGroups={};
   hits.forEach(p=>{
+    const key=p.l+'|||'+p.p;
+    if(!locGroups[key])locGroups[key]={loc:p.l,prov:p.p,items:[]};
+    locGroups[key].items.push(p);
+  });
+
+  const groups=Object.values(locGroups).sort((a,b)=>b.items.length-a.items.length);
+
+  // Show locality groups if there are multiple matches in localities
+  if(groups.length>1||groups[0].items.length>1){
+    const secLoc=document.createElement('div');secLoc.className='sr-section';secLoc.textContent=`📍 Localidades (${groups.length})`;
+    box.appendChild(secLoc);
+
+    groups.slice(0,10).forEach(g=>{
+      const d=document.createElement('div');d.className='ri-group';
+      const provLabel=g.prov.charAt(0)+g.prov.slice(1).toLowerCase();
+      d.innerHTML=`<div class="rg-name">${g.loc.charAt(0)+g.loc.slice(1).toLowerCase()}<span class="rg-badge">${g.items.length}</span></div><div class="rg-count">${provLabel}</div>`;
+      d.addEventListener('click',()=>{
+        // Set province filter + loc filter and zoom
+        activeProv=g.prov;activeLoc=g.loc;activeCp='';
+        psel.value=activeProv;
+        document.getElementById('cpsel').value='';
+        buildLocSelector(POINTS.filter(p=>p.p===activeProv));
+        document.getElementById('locsel').value=g.loc;
+        document.querySelectorAll('.pc').forEach(c=>c.classList.toggle('active',c.dataset.p===activeProv));
+        refreshMarkers();buildLegend();
+        document.getElementById('sq').value='';box.style.display='none';
+      });
+      box.appendChild(d);
+    });
+  }
+
+  // Show individual pharmacies
+  const secFarm=document.createElement('div');secFarm.className='sr-section';secFarm.textContent=`💊 Farmacias (${hits.length})`;
+  box.appendChild(secFarm);
+
+  hits.slice(0,15).forEach(p=>{
     const d=document.createElement('div');d.className='ri';
     d.innerHTML=`<strong>${p.n}</strong><div class="rs">${p.a} · ${p.l}</div><span class="rid">ID: ${p.id}</span>`;
     d.addEventListener('click',()=>{
@@ -364,6 +461,12 @@ function doSearch(){
     });
     box.appendChild(d);
   });
+  if(hits.length>15){
+    const more=document.createElement('div');more.style.cssText='padding:8px 14px;font-size:11px;color:#64748b;text-align:center;border-top:1px solid #334155';
+    more.textContent=`+ ${hits.length-15} farmacias más...`;
+    box.appendChild(more);
+  }
+
   box.style.display='block';
 }
 
@@ -500,32 +603,11 @@ function applyJsonUpdate(){
     m.bindPopup(popupHtml(p),{maxWidth:280});
     allM.push({m,p});getCluster(p.p).addLayer(m);
   });
-  // Rebuild sidebar
-  const pvlEl=document.getElementById('pvl');pvlEl.innerHTML='';
-  const pselEl=document.getElementById('psel');pselEl.innerHTML='<option value="">— Todas las provincias —</option>';
-  Object.entries(PROV_COUNTS).sort((a,b)=>b[1]-a[1]).forEach(([prov,count])=>{
-    const color=PROV_COLORS[prov]||'#94a3b8';
-    const card=document.createElement('div');card.className='pc';card.dataset.p=prov;
-    card.innerHTML=`<div class="pd" style="background:${color}"></div><div class="pn">${prov.charAt(0)+prov.slice(1).toLowerCase()}</div><div class="pk">${count}</div>`;
-    card.addEventListener('click',()=>{
-      const same=activeProv===prov;
-      document.querySelectorAll('.pc').forEach(c=>c.classList.remove('active'));
-      activeProv=same?'':(card.classList.add('active'),prov);
-      pselEl.value=activeProv;activeCp='';document.getElementById('cpsel').value='';
-      refreshMarkers();buildLegend();
-    });
-    pvlEl.appendChild(card);
-    const opt=document.createElement('option');opt.value=prov;
-    opt.textContent=`${prov.charAt(0)+prov.slice(1).toLowerCase()} (${count})`;
-    pselEl.appendChild(opt);
-  });
-  // Rebuild CP
-  const cpC={};newPoints.forEach(p=>{cpC[p.cp]=(cpC[p.cp]||0)+1;});
-  const cpE=document.getElementById('cpsel');cpE.innerHTML='<option value="">— Todos los CPs —</option>';
-  Object.entries(cpC).sort((a,b)=>b[1]-a[1]).forEach(([cp,cnt])=>{
-    const o=document.createElement('option');o.value=cp;o.textContent=`CP ${cp} (${cnt})`;cpE.appendChild(o);
-  });
-  activeProv='';activeCp='';buildLegend();
+  // Rebuild all selectors using shared functions
+  buildProvSidebar();
+  buildCpSelector(POINTS);
+  buildLocSelector(POINTS);
+  activeProv='';activeCp='';activeLoc='';buildLegend();
   // Update header
   const stats=document.querySelectorAll('.hstat .n');
   if(stats[0])stats[0].textContent=newPoints.length.toLocaleString('es-AR');
