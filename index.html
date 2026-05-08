@@ -148,7 +148,7 @@ function checkPwd(){
  <div id="sb">
   <div class="sbt">Buscar farmacia, localidad o ID</div>
   <div class="sw"><input id="sq" type="text" placeholder="Nombre, localidad, dirección, CP o ID..." oninput="doSearch()"></div>
-  <div id="sr"></div>
+  <div id="sr" style="display: block;"><div class="sr-section">💊 Farmacias con ese nombre (8)</div><div class="ri"><strong>BELGRANO</strong><div class="rs">BELGRANO 649 · CHASCOMUS</div><span class="rid">ID: 8986</span></div><div class="ri"><strong>BELGRANO</strong><div class="rs">BELGRANO 655 · INT ALVEAR</div><span class="rid">ID: 116716</span></div><div class="ri"><strong>BELGRANO (PERICO)</strong><div class="rs">AV. BELGRANO 98 · PERICO</div><span class="rid">ID: 12123</span></div><div class="ri"><strong>BELGRANO BANFIELD</strong><div class="rs">ALEM 1448 · BANFIELD</div><span class="rid">ID: 6796</span></div><div class="ri"><strong>BELGRANO MORENO</strong><div class="rs">ASCONAPE Nº 200 · MORENO</div><span class="rid">ID: 5897</span></div><div class="ri"><strong>DELKO BELGRANO</strong><div class="rs">AV. FEDERICO LACROZE 1859 · CAPITAL FEDERAL</div><span class="rid">ID: 150</span></div><div class="ri"><strong>PLAZOLETA BELGRANO</strong><div class="rs">AV BELGRANO 1625 · SAN MIGUEL DE TUCUMAN</div><span class="rid">ID: 11783</span></div><div class="ri"><strong>RED GENERAL PAZ VILLA BELGRANO</strong><div class="rs">RECTA MARTINOLLI 6137 Bº VILLA BELGRANO · CORDOBA</div><span class="rid">ID: 107039</span></div><div class="sr-section">📍 Localidades (1)</div><div class="ri-group"><div class="rg-name">Villa gral belgrano<span class="rg-badge">1</span></div><div class="rg-count">Cordoba</div></div><div class="sr-section">🏠 Dirección (78)</div><div class="ri"><strong>BALDRICH</strong><div class="rs">BELGRANO 115 · LAS VARILLAS</div><span class="rid">ID: 111829</span></div><div class="ri"><strong>BECCACECE</strong><div class="rs">BELGRANO 3113 · MAR DEL PLATA</div><span class="rid">ID: 170423</span></div><div class="ri"><strong>BONIFACIO</strong><div class="rs">BELGRANO 1295 · MARCOS JUAREZ</div><span class="rid">ID: 113437</span></div><div class="ri"><strong>BOTIQUIN FARMAMOLLES</strong><div class="rs">BELGRANO S/N · LOS MOLLES</div><span class="rid">ID: 109661</span></div><div class="ri"><strong>BOTTALLO ALEJANDRA</strong><div class="rs">BV. BELGRANO 1401 · LEONES</div><span class="rid">ID: 150828</span></div><div class="ri"><strong>CABEZA DE LA NATIVID</strong><div class="rs">CNO GRAL BELGRANO 2467 · QUILMES OESTE</div><span class="rid">ID: 8292</span></div><div class="ri"><strong>CALZIA</strong><div class="rs">BELGRANO 675 · SAN LORENZO</div><span class="rid">ID: 150801</span></div><div class="ri"><strong>CENTRO I (SANTIAGO)</strong><div class="rs">AV. BELGRANO (S) Y AVELLANEDA · SANTIAGO DEL ESTERO</div><span class="rid">ID: 10859</span></div><div class="ri"><strong>CIARLIERO</strong><div class="rs">BELGRANO 880 · GARIN</div><span class="rid">ID: 12807</span></div><div class="ri"><strong>COGLIATI</strong><div class="rs">BELGRANO 294 · MORON</div><span class="rid">ID: 7385</span></div><div class="ri"><strong>CUASSOLO</strong><div class="rs">BELGRANO 99 · OLIVA</div><span class="rid">ID: 112041</span></div><div class="ri"><strong>DASSIE</strong><div class="rs">BELGRANO 700 · VILLA ELOISA</div><span class="rid">ID: 171030</span></div><div class="ri"><strong>DEL FERROCARRIL</strong><div class="rs">BELGRANO 3202 · SAN MARTIN</div><span class="rid">ID: 9468</span></div><div class="ri"><strong>DEL SARTO ( V. CONSTITUCION )</strong><div class="rs">BELGRANO 998 · VILLA CONSTITUCION</div><span class="rid">ID: 100482</span></div><div class="ri"><strong>DEMARIA I</strong><div class="rs">AV BELGRANO 672 · SANTA ROSA</div><span class="rid">ID: 117081</span></div><div style="padding: 6px 14px; font-size: 11px; color: rgb(100, 116, 139); text-align: center; border-bottom: 1px solid rgb(51, 65, 85);">+ 63 más...</div></div>
   <div class="fblock">
     <label>Filtrar por Provincia</label>
     <select id="psel" onchange="filterByProv()"><option value="">— Todas las provincias —</option><option value="BUENOS AIRES">Buenos aires (1267)</option><option value="CORDOBA">Cordoba (547)</option><option value="SANTA FE">Santa fe (282)</option><option value="CIUDAD AUTONOMA DE BUENOS AIRES">Ciudad autonoma de buenos aires (241)</option><option value="TUCUMAN">Tucuman (102)</option><option value="SALTA">Salta (91)</option><option value="SAN JUAN">San juan (84)</option><option value="MENDOZA">Mendoza (83)</option><option value="LA PAMPA">La pampa (81)</option><option value="SAN LUIS">San luis (72)</option><option value="JUJUY">Jujuy (56)</option><option value="ENTRE RIOS">Entre rios (22)</option><option value="SANTIAGO DEL ESTERO">Santiago del estero (20)</option><option value="RIO NEGRO">Rio negro (19)</option><option value="NEUQUEN">Neuquen (17)</option><option value="MISIONES">Misiones (15)</option><option value="LA RIOJA">La rioja (14)</option><option value="CATAMARCA">Catamarca (11)</option><option value="CHUBUT">Chubut (9)</option><option value="CHACO">Chaco (3)</option><option value="CORRIENTES">Corrientes (3)</option><option value="CÓRDOBA">Córdoba (2)</option><option value="SANTA FÉ">Santa fé (1)</option><option value="CIUDAD AUTÓNOMA DE BUENOS AIRES">Ciudad autónoma de buenos aires (1)</option><option value="FORMOSA">Formosa (1)</option></select>
@@ -409,31 +409,59 @@ function doSearch(){
   const box=document.getElementById('sr');box.innerHTML='';
   if(q.length<2){box.style.display='none';return;}
 
-  const hits=POINTS.filter(p=>p.n.toLowerCase().includes(q)||p.l.toLowerCase().includes(q)||p.a.toLowerCase().includes(q)||String(p.cp).includes(q)||String(p.id).includes(q));
+  // 1. Farmacias whose NAME matches
+  const nameHits=POINTS.filter(p=>p.n.toLowerCase().includes(q));
 
-  if(!hits.length){box.innerHTML='<div style="padding:10px 14px;font-size:12px;color:#94a3b8">Sin resultados</div>';box.style.display='block';return;}
-
-  // Group by localidad
+  // 2. Localities whose name matches (group them)
+  const locHits=POINTS.filter(p=>p.l.toLowerCase().includes(q));
   const locGroups={};
-  hits.forEach(p=>{
+  locHits.forEach(p=>{
     const key=p.l+'|||'+p.p;
     if(!locGroups[key])locGroups[key]={loc:p.l,prov:p.p,items:[]};
     locGroups[key].items.push(p);
   });
-
   const groups=Object.values(locGroups).sort((a,b)=>b.items.length-a.items.length);
 
-  // Show locality groups if there are multiple matches in localities
-  if(groups.length>1||groups[0].items.length>1){
-    const secLoc=document.createElement('div');secLoc.className='sr-section';secLoc.textContent=`📍 Localidades (${groups.length})`;
-    box.appendChild(secLoc);
+  // 3. Farmacias whose ADDRESS matches (but not already in name hits)
+  const addrHits=POINTS.filter(p=>
+    (p.a.toLowerCase().includes(q)||String(p.cp).includes(q)||String(p.id).includes(q))
+    &&!p.n.toLowerCase().includes(q)
+    &&!p.l.toLowerCase().includes(q)
+  );
 
+  const totalResults=nameHits.length+locHits.length+addrHits.length;
+  if(!totalResults){box.innerHTML='<div style="padding:10px 14px;font-size:12px;color:#94a3b8">Sin resultados</div>';box.style.display='block';return;}
+
+  // Section 1: Farmacias by name
+  if(nameHits.length){
+    const sec=document.createElement('div');sec.className='sr-section';sec.textContent=`💊 Farmacias con ese nombre (${nameHits.length})`;
+    box.appendChild(sec);
+    nameHits.slice(0,15).forEach(p=>{
+      const d=document.createElement('div');d.className='ri';
+      d.innerHTML=`<strong>${p.n}</strong><div class="rs">${p.a} · ${p.l}</div><span class="rid">ID: ${p.id}</span>`;
+      d.addEventListener('click',()=>{
+        const item=allM.find(i=>i.p.id===p.id);
+        if(item){map.setView(item.m.getLatLng(),17);item.m.openPopup();}
+        document.getElementById('sq').value='';box.style.display='none';
+      });
+      box.appendChild(d);
+    });
+    if(nameHits.length>15){
+      const more=document.createElement('div');more.style.cssText='padding:6px 14px;font-size:11px;color:#64748b;text-align:center;border-bottom:1px solid #334155';
+      more.textContent=`+ ${nameHits.length-15} más...`;
+      box.appendChild(more);
+    }
+  }
+
+  // Section 2: Localities
+  if(groups.length){
+    const sec=document.createElement('div');sec.className='sr-section';sec.textContent=`📍 Localidades (${groups.length})`;
+    box.appendChild(sec);
     groups.slice(0,10).forEach(g=>{
       const d=document.createElement('div');d.className='ri-group';
       const provLabel=g.prov.charAt(0)+g.prov.slice(1).toLowerCase();
       d.innerHTML=`<div class="rg-name">${g.loc.charAt(0)+g.loc.slice(1).toLowerCase()}<span class="rg-badge">${g.items.length}</span></div><div class="rg-count">${provLabel}</div>`;
       d.addEventListener('click',()=>{
-        // Set province filter + loc filter and zoom
         activeProv=g.prov;activeLoc=g.loc;activeCp='';
         psel.value=activeProv;
         document.getElementById('cpsel').value='';
@@ -447,24 +475,25 @@ function doSearch(){
     });
   }
 
-  // Show individual pharmacies
-  const secFarm=document.createElement('div');secFarm.className='sr-section';secFarm.textContent=`💊 Farmacias (${hits.length})`;
-  box.appendChild(secFarm);
-
-  hits.slice(0,15).forEach(p=>{
-    const d=document.createElement('div');d.className='ri';
-    d.innerHTML=`<strong>${p.n}</strong><div class="rs">${p.a} · ${p.l}</div><span class="rid">ID: ${p.id}</span>`;
-    d.addEventListener('click',()=>{
-      const item=allM.find(i=>i.p.id===p.id);
-      if(item){map.setView(item.m.getLatLng(),17);item.m.openPopup();}
-      document.getElementById('sq').value='';box.style.display='none';
+  // Section 3: Address matches
+  if(addrHits.length){
+    const sec=document.createElement('div');sec.className='sr-section';sec.textContent=`🏠 Dirección (${addrHits.length})`;
+    box.appendChild(sec);
+    addrHits.slice(0,15).forEach(p=>{
+      const d=document.createElement('div');d.className='ri';
+      d.innerHTML=`<strong>${p.n}</strong><div class="rs">${p.a} · ${p.l}</div><span class="rid">ID: ${p.id}</span>`;
+      d.addEventListener('click',()=>{
+        const item=allM.find(i=>i.p.id===p.id);
+        if(item){map.setView(item.m.getLatLng(),17);item.m.openPopup();}
+        document.getElementById('sq').value='';box.style.display='none';
+      });
+      box.appendChild(d);
     });
-    box.appendChild(d);
-  });
-  if(hits.length>15){
-    const more=document.createElement('div');more.style.cssText='padding:8px 14px;font-size:11px;color:#64748b;text-align:center;border-top:1px solid #334155';
-    more.textContent=`+ ${hits.length-15} farmacias más...`;
-    box.appendChild(more);
+    if(addrHits.length>15){
+      const more=document.createElement('div');more.style.cssText='padding:6px 14px;font-size:11px;color:#64748b;text-align:center;border-bottom:1px solid #334155';
+      more.textContent=`+ ${addrHits.length-15} más...`;
+      box.appendChild(more);
+    }
   }
 
   box.style.display='block';
