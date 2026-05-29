@@ -302,7 +302,10 @@ function mkDot(color){
 function popupHtml(p){
   const color=PROV_COLORS[p.p]||'#94a3b8';
   const mapsUrl=`https://www.google.com/maps?q=${p.lat},${p.lng}`;
+  const isInactive=p.act===false;
+  const inactiveBadge=isInactive?`<div style="background:#ef4444;color:#fff;font-size:11px;font-weight:800;padding:4px 12px;border-radius:6px;text-align:center;margin-bottom:6px;letter-spacing:.5px">⛔ PDR INACTIVO</div>`:'';
   return `<div style="min-width:225px;font-family:'Segoe UI',Arial,sans-serif">
+    ${inactiveBadge}
     <div style="background:#1e3a5f;color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:6px">ID: ${p.id}</div>
     <div style="font-weight:700;font-size:13px;color:#1e293b;margin-bottom:4px">${p.n}</div>
     <div style="font-size:11px;color:#475569;margin-bottom:2px">📍 ${p.a}</div>
@@ -310,6 +313,7 @@ function popupHtml(p){
     <div style="font-size:11px;color:#475569;margin-bottom:7px">📮 CP ${p.cp}</div>
     <div style="margin-bottom:8px">
       <span style="background:${color};color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px">${p.p}</span>
+      ${isInactive?'<span style="background:#64748b;color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px;margin-left:4px">INACTIVO</span>':''}
     </div>
     <a href="${mapsUrl}" target="_blank" style="display:block;text-align:center;background:#2563eb;color:#fff;font-size:11px;font-weight:600;padding:6px 10px;border-radius:6px;text-decoration:none">🗺️ Ver en Google Maps</a>
   </div>`;
@@ -317,7 +321,8 @@ function popupHtml(p){
 
 // Cargar todos los markers de una vez
 POINTS.forEach(p=>{
-  const color=PROV_COLORS[p.p]||'#94a3b8';
+  const isInactive=p.act===false;
+  const color=isInactive?'#64748b':(PROV_COLORS[p.p]||'#94a3b8');
   const m=L.marker([p.lat,p.lng],{icon:mkDot(color)});
   m.bindPopup(popupHtml(p),{maxWidth:280});
   allM.push({m,p});
@@ -429,6 +434,10 @@ function buildLegend(){
     const color=PROV_COLORS[prov]||'#94a3b8';
     el.innerHTML+=`<div class="lr"><div class="ld" style="background:${color}"></div>${prov.charAt(0)+prov.slice(1).toLowerCase()} (${count})</div>`;
   });
+  const inactiveCount=POINTS.filter(p=>p.act===false).length;
+  if(inactiveCount>0){
+    el.innerHTML+=`<div class="lr" style="margin-top:8px;padding-top:8px;border-top:1px solid #334155"><div class="ld" style="background:#64748b"></div><span style="color:#94a3b8">PDR Inactivos (${inactiveCount})</span></div>`;
+  }
 }
 buildLegend();
 
@@ -466,7 +475,8 @@ function doSearch(){
     box.appendChild(sec);
     nameHits.slice(0,15).forEach(p=>{
       const d=document.createElement('div');d.className='ri';
-      d.innerHTML=`<strong>${p.n}</strong><div class="rs">${p.a} · ${p.l}</div><span class="rid">ID: ${p.id}</span>`;
+      const inactTag=p.act===false?' <span style="background:#ef4444;color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px">INACTIVO</span>':'';
+      d.innerHTML=`<strong>${p.n}${inactTag}</strong><div class="rs">${p.a} · ${p.l}</div><span class="rid">ID: ${p.id}</span>`;
       d.addEventListener('click',()=>{
         const item=allM.find(i=>i.p.id===p.id);
         if(item){map.setView(item.m.getLatLng(),17);item.m.openPopup();}
@@ -509,7 +519,8 @@ function doSearch(){
     box.appendChild(sec);
     addrHits.slice(0,15).forEach(p=>{
       const d=document.createElement('div');d.className='ri';
-      d.innerHTML=`<strong>${p.n}</strong><div class="rs">${p.a} · ${p.l}</div><span class="rid">ID: ${p.id}</span>`;
+      const inactTag=p.act===false?' <span style="background:#ef4444;color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px">INACTIVO</span>':'';
+      d.innerHTML=`<strong>${p.n}${inactTag}</strong><div class="rs">${p.a} · ${p.l}</div><span class="rid">ID: ${p.id}</span>`;
       d.addEventListener('click',()=>{
         const item=allM.find(i=>i.p.id===p.id);
         if(item){map.setView(item.m.getLatLng(),17);item.m.openPopup();}
@@ -598,14 +609,14 @@ function transformJsonToPoints(data){
     if(Math.abs(lat)>90||Math.abs(lng)>180){
       errors.push(`#${idx+1} "${item.name||'?'}": coords fuera de rango`);return;
     }
-    if(item.isActive===false) return;
+    const isActive=item.isActive!==false;
     const state=(item.state||'').toUpperCase().trim();
     const city=(item.city||item.neighborhood||'').toUpperCase().trim();
     const name=(item.name||'Sin nombre').toUpperCase().trim();
     const street=item.street||'';
     const number=item.number||'';
     const address=(street+(number?' '+number:'')).trim()||'Sin dirección';
-    points.push({id:item.id||idx,n:name,a:address.toUpperCase(),l:city,p:state,cp:item.postalCode||0,lat:lat,lng:lng});
+    points.push({id:item.id||idx,n:name,a:address.toUpperCase(),l:city,p:state,cp:item.postalCode||0,lat:lat,lng:lng,act:isActive});
   });
   return{points,errors};
 }
@@ -623,17 +634,18 @@ function validateJson(){
   const{points,errors}=transformJsonToPoints(data);
   if(!points.length){status.className='error';status.textContent='❌ No se pudieron procesar farmacias válidas.';preview.classList.remove('show');return;}
   const provCount={};points.forEach(p=>{provCount[p.p]=(provCount[p.p]||0)+1;});
-  const inactive=data.filter(d=>d.isActive===false).length;
+  const inactive=points.filter(p=>p.act===false).length;
+  const active=points.length-inactive;
   previewGrid.innerHTML=`
     <div class="um-preview-stat"><div class="n">${data.length}</div><div class="l">Total en JSON</div></div>
     <div class="um-preview-stat"><div class="n">${inactive}</div><div class="l">Inactivas</div></div>
-    <div class="um-preview-stat"><div class="n" style="color:#34d399">${points.length}</div><div class="l">Activas a cargar</div></div>
+    <div class="um-preview-stat"><div class="n" style="color:#34d399">${active}</div><div class="l">Activas</div></div>
     <div class="um-preview-stat"><div class="n">${Object.keys(provCount).length}</div><div class="l">Provincias</div></div>
     ${errors.length?`<div class="um-preview-stat"><div class="n" style="color:#f87171">${errors.length}</div><div class="l">Con errores</div></div>`:''}`;
   preview.classList.add('show');
   parsedJsonData=points;
   status.className='success';
-  status.innerHTML=`✅ <strong>${points.length}</strong> farmacias activas listas.`+(errors.length?` <span style="color:#fbbf24">⚠️ ${errors.length} omitidas.</span>`:'');
+  status.innerHTML=`✅ <strong>${points.length}</strong> farmacias listas (${active} activas, ${inactive} inactivas).`+(errors.length?` <span style="color:#fbbf24">⚠️ ${errors.length} omitidas.</span>`:'');
   document.getElementById('um-validate-btn').style.display='none';
   document.getElementById('um-apply-btn').style.display='';
 }
@@ -655,7 +667,8 @@ function applyJsonUpdate(){
   Object.assign(PROV_COUNTS,newProvCounts);
   POINTS.length=0;newPoints.forEach(p=>POINTS.push(p));
   newPoints.forEach(p=>{
-    const color=PROV_COLORS[p.p]||'#94a3b8';
+    const isInactive=p.act===false;
+    const color=isInactive?'#64748b':(PROV_COLORS[p.p]||'#94a3b8');
     const m=L.marker([p.lat,p.lng],{icon:mkDot(color)});
     m.bindPopup(popupHtml(p),{maxWidth:280});
     allM.push({m,p});getCluster(p.p).addLayer(m);
