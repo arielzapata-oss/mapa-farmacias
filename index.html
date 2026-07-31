@@ -1009,8 +1009,7 @@ function searchRedir(){
   var nearest=p.nearest||[];
   var stColor=p.isActive?'#34d399':'#f87171';
   var stText=p.isActive?'✅ ACTIVO':'⛔ INACTIVO';
-  var motColor=p.isActive?'#fbbf24':'#f87171';
-  var motText=p.isActive?'📋 Negación / sobrecarga':'📋 Cierre / inactividad';
+
 
   var html='<div class="rr-origin">'
     +'<div class="ro-id">ID '+p.id
@@ -1018,7 +1017,7 @@ function searchRedir(){
     +' <a href="#" onclick="openPopupById(\''+p.id+'\');return false;" style="color:#60a5fa;font-size:10px;font-weight:400">📍 ver en mapa</a></div>'
     +'<div class="ro-name">'+p.name+'</div>'
     +'<div class="ro-loc">'+p.street+' '+p.number+' · '+p.city+'</div>'
-    +'<div class="ro-motivo" style="color:'+motColor+'">'+motText+'</div>'
+    +'<div style="margin-top:4px"><span style="background:'+(PROV_COLORS[p.state.toUpperCase()]||PROV_COLORS[p.state]||'#94a3b8')+';color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px">'+p.state+'</span></div>'
     +'</div>'
     +'<div class="rr-crit">Criterio <strong>'+state+'</strong>: radio máx. <strong style="color:#f59e0b">'+crit+' km</strong></div>'
     +'<div class="rr-sec">PDR activos más cercanos:</div>';
