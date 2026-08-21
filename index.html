@@ -427,7 +427,10 @@ function popupHtml(p){
     <div style="margin-bottom:8px">
       <span style="background:${color};color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px">${p.p}</span>
     </div>
-    <a href="${mapsUrl}" target="_blank" style="display:block;text-align:center;background:#2563eb;color:#fff;font-size:11px;font-weight:600;padding:6px 10px;border-radius:6px;text-decoration:none">🗺️ Ver en Google Maps</a>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <a href="${mapsUrl}" target="_blank" style="flex:1;text-align:center;background:#2563eb;color:#fff;font-size:11px;font-weight:600;padding:6px 10px;border-radius:6px;text-decoration:none">🗺️ Maps</a>
+      <button onclick="copiarDatosPopup({id:'${p.id}',nombre:'${p.n.replace(/'/g,"\\'")}',direccion:'${p.a.replace(/'/g,"\\'")}',localidad:'${p.l.replace(/'/g,"\\'")}',cp:'${p.cp}',provincia:'${p.p}',activo:${p.act}})" style="flex:1;background:#2563eb;color:#fff;font-size:11px;font-weight:600;padding:6px 10px;border-radius:6px;border:none;cursor:pointer;transition:opacity .2s" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">📋 Copiar</button>
+    </div>
   </div>`;
 }
 
@@ -664,6 +667,22 @@ let toastT;
 function showToast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.style.opacity='1';
   clearTimeout(toastT);toastT=setTimeout(()=>t.style.opacity='0',3000);
+}
+
+function copiarDatosPopup(datos){
+  const estado=datos.activo?'ACTIVO':'INACTIVO';
+  const texto=`ID: ${datos.id}
+Farmacia: ${datos.nombre}
+Dirección: ${datos.direccion}
+Localidad: ${datos.localidad}
+CP: ${datos.cp}
+Provincia: ${datos.provincia}
+Estado: ${estado}`;
+  navigator.clipboard.writeText(texto).then(()=>{
+    showToast('✅ Datos copiados al portapapeles');
+  }).catch(()=>{
+    alert('No se pudo copiar, intenta de nuevo');
+  });
 }
 
 setTimeout(()=>showToast('✅ 3.039 farmacias cargadas al instante'),500);
