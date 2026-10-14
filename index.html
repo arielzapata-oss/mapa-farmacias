@@ -9,6 +9,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <style>
+.carto-labels{filter:brightness(2.2) contrast(1.5) drop-shadow(0 0 1px #000) drop-shadow(0 0 2px #000)}
 .label-tiles{filter:brightness(1.55) contrast(1.45) saturate(0) drop-shadow(0 0 1.5px rgba(0,0,0,.95)) drop-shadow(0 0 3px rgba(0,0,0,.75))}
 .zone-tooltip{background:#1F2937;color:#fff;border:1px solid #FFA726;font-weight:700;font-size:12px;padding:4px 8px}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -380,11 +381,22 @@ map.fitBounds(ARG_BOUNDS,{padding:[20,20]});
 // ===== CartoDB dark_all (tiles reales, con API key) =====
 // Key de Basemaps (restringida por Referer a arielzapata-oss.github.io) — https://carto.com/basemaps/apikey/
 const CARTO_API_KEY = 'cb1_3vbq_1_01cc349b21e06b525eb79a69';
-const tileMain = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=' + CARTO_API_KEY,
+// Capa 1: fondo oscuro SIN etiquetas. Capa 2: solo etiquetas (calles, barrios, provincias),
+// reforzadas con CSS (.carto-labels) para que los nombres se lean mucho mejor.
+const tileMain = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png?key=' + CARTO_API_KEY,
   {attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
    subdomains:'abcd', maxZoom:20, minZoom:0,
    keepBuffer:4, updateWhenIdle:false, updateWhenZooming:false});
 tileMain.addTo(map);
+
+// Pane propio para las etiquetas: por encima de los polígonos de zonas, por debajo de los marcadores
+map.createPane('cartoLabelPane');
+map.getPane('cartoLabelPane').style.zIndex = 450;
+map.getPane('cartoLabelPane').style.pointerEvents = 'none';
+const tileCartoLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png?key=' + CARTO_API_KEY,
+  {subdomains:'abcd', maxZoom:20, minZoom:0, pane:'cartoLabelPane', className:'carto-labels',
+   keepBuffer:4, updateWhenIdle:false, updateWhenZooming:false});
+tileCartoLabels.addTo(map);
 
 /* ===== FALLBACK: Esri Dark Gray Canvas (sin API key, sin límite de uso) =====
    Si en algún momento CARTO corta el acceso o cambia condiciones, comentar el
