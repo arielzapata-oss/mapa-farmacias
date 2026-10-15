@@ -212,6 +212,41 @@ header p{font-size:11px;opacity:.8;margin-top:1px}
   margin-right: 12px;
 }
 
+/* ===== Panel de COBERTURA de la red ===== */
+#cov-btn{margin-left:10px}
+#cov-btn.on{background:#2563eb;color:#fff}
+#cov-panel{position:absolute;top:58px;right:56px;width:400px;max-width:calc(100vw - 340px);max-height:calc(100vh - 130px);background:#1e293b;border:1px solid #334155;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.55);z-index:1002;display:none;flex-direction:column;overflow:hidden;font-size:12px;color:#cbd5e1}
+#cov-panel.open{display:flex}
+#cov-head{display:flex;align-items:center;justify-content:space-between;padding:9px 10px 9px 12px;background:linear-gradient(135deg,#1e3a5f,#1d4ed8);color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
+#cov-x{background:rgba(255,255,255,.18);border:none;color:#fff;width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:13px}
+#cov-x:hover{background:rgba(255,255,255,.3)}
+#cov-body{padding:10px 12px 12px;overflow:auto}
+.cov-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.cov-card{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:8px 4px;text-align:center}
+.cov-card b{display:block;font-size:18px;color:#fff;line-height:1.2}
+.cov-card span{font-size:9.5px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px}
+.cov-ctl{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.cov-seg{display:flex;border:1px solid #334155;border-radius:8px;overflow:hidden;flex-shrink:0}
+.cov-seg button{background:#0f172a;color:#94a3b8;border:0;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer}
+.cov-seg button.on{background:#2563eb;color:#fff}
+#cov-prov{flex:1;min-width:0;background:#0f172a;color:#cbd5e1;border:1px solid #334155;border-radius:8px;padding:5px 6px;font-size:11px}
+.cov-tw{max-height:270px;overflow-y:auto;overflow-x:hidden;border:1px solid #334155;border-radius:8px}
+#cov-table{width:100%;border-collapse:collapse}
+#cov-table th{position:sticky;top:0;background:#0f172a;color:#94a3b8;font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;padding:6px 5px;text-align:right;cursor:pointer;user-select:none;white-space:nowrap}
+#cov-table th:first-child,#cov-table td:first-child{text-align:left}
+#cov-table td{padding:5px;text-align:right;border-top:1px solid #243247;white-space:nowrap}
+#cov-table td:first-child{max-width:118px;overflow:hidden;text-overflow:ellipsis}
+#cov-table tr.cov-r{cursor:pointer}
+#cov-table tr.cov-r:hover{background:#273449}
+#cov-table tr.sel{background:#1d3a6b}
+.cov-pct.hi{color:#f87171;font-weight:700}
+.cov-pct.mid{color:#fbbf24}
+.cov-sw{margin-top:10px;display:flex;flex-direction:column;gap:7px}
+.cov-sw label{display:flex;align-items:center;gap:7px;cursor:pointer}
+.cov-sw select{background:#0f172a;color:#cbd5e1;border:1px solid #334155;border-radius:6px;font-size:11px;padding:2px 4px;margin-left:auto}
+.cov-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+.cov-dot.ring{background:none;border:2px solid #fb923c;box-sizing:border-box}
+.cov-note{margin-top:9px;font-size:10.5px;color:#64748b;line-height:1.45}
 </style>
 <style id="jc-autofill-preloader-styles">
       .jc-autofill-preloader {
@@ -896,6 +931,7 @@ function applyJsonUpdate(){
   if(hP)hP.textContent=`${newPoints.length.toLocaleString('es-AR')} farmacias · Ubicación exacta por dirección · ${Object.keys(PROV_COUNTS).length} provincias`;
   document.getElementById('sb-count').textContent=newPoints.length.toLocaleString();
   map.fitBounds(ARG_BOUNDS,{padding:[20,20]});
+  if(window.covRefresh)window.covRefresh();
   // Show download bar instead of closing
   document.getElementById('um-validate-btn').style.display='none';
   document.getElementById('um-apply-btn').style.display='none';
@@ -946,7 +982,7 @@ function downloadUpdatedHtml(){
   const total=POINTS.length;
   const provCount=Object.keys(PROV_COUNTS).length;
 
-  let html=`<!DOCTYPE html>\n`+(function(){const c=document.documentElement.cloneNode(true);const m=c.querySelector('#map');if(m){m.innerHTML='';m.removeAttribute('class');m.removeAttribute('tabindex');m.removeAttribute('style');}return c.outerHTML;})();
+  let html=`<!DOCTYPE html>\n`+(function(){const c=document.documentElement.cloneNode(true);const m=c.querySelector('#map');if(m){m.innerHTML='';m.removeAttribute('class');m.removeAttribute('tabindex');m.removeAttribute('style');}c.querySelectorAll('#cov-panel,#cov-btn').forEach(function(e){e.remove();});var lg=c.querySelector('#leg');if(lg)lg.style.display='';return c.outerHTML;})();
 
   // Replace data arrays
   html=html.replace(/const POINTS=\[.*?\];/s,`const POINTS=${pointsJson};`);
@@ -1226,5 +1262,229 @@ function makeDraggable(el, handle) {
     document.removeEventListener('mouseup', offDrag);
   }
 }
+</script>
+<script>
+// ===== COBERTURA DE LA RED (botón en el encabezado) =====
+// Panel con ranking por provincia / localidad (activos, inactivos, % inactivos, concentración)
+// y dos capas opcionales en el mapa: radio de cobertura y concentración de PDR.
+// Usa POINTS en vivo, así que se actualiza solo después de "Actualizar JSON" (window.covRefresh).
+(function(){
+  'use strict';
+  var COV={view:'prov',prov:'',sortKey:'act',sortDir:-1,radiusKm:1,showC:false,showD:false,
+           layerC:null,layerD:null,dense:new Set(),sel:null};
+  var DENSE_M=500, DENSE_MIN=3;   // concentración: 3 o más PDR activos a menos de 500 m
+
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch];});}
+  function fmt(n){return Number(n).toLocaleString('es-AR');}
+  function nice(s){
+    s=String(s||'').toLowerCase().replace(/(^|\s)(\S)/g,function(m,a,b){return a+b.toUpperCase();});
+    return s.replace(/\s(De|Del|La|Las|Los|Y|El)(?=\s)/g,function(x){return x.toLowerCase();});
+  }
+  function isAct(p){return p.act!==false;}
+
+  // ---- Concentración: PDR activos con 3+ vecinos activos a menos de 500 m ----
+  function computeDense(){
+    var act=POINTS.filter(function(p){return isAct(p)&&isFinite(p.lat)&&isFinite(p.lng);});
+    var cell=0.01, grid=new Map();
+    function key(i,j){return i+'|'+j;}
+    act.forEach(function(p){
+      var k=key(Math.floor(p.lat/cell),Math.floor(p.lng/cell)), a=grid.get(k);
+      if(!a){a=[];grid.set(k,a);} a.push(p);
+    });
+    var set=new Set();
+    act.forEach(function(p){
+      var ci=Math.floor(p.lat/cell), cj=Math.floor(p.lng/cell);
+      var kx=111320*Math.cos(p.lat*Math.PI/180), ky=110540, n=0;
+      for(var a=-1;a<=1;a++)for(var b=-1;b<=1;b++){
+        var arr=grid.get(key(ci+a,cj+b)); if(!arr) continue;
+        for(var i=0;i<arr.length;i++){
+          var q=arr[i]; if(q===p) continue;
+          var dx=(q.lng-p.lng)*kx, dy=(q.lat-p.lat)*ky;
+          if(dx*dx+dy*dy<=DENSE_M*DENSE_M) n++;
+        }
+      }
+      if(n>=DENSE_MIN) set.add(p);
+    });
+    return set;
+  }
+
+  function scopePoints(){
+    return (COV.view==='loc'&&COV.prov)?POINTS.filter(function(p){return p.p===COV.prov;}):POINTS;
+  }
+
+  function buildStats(){
+    var groups=new Map(), scope=scopePoints();
+    scope.forEach(function(p){
+      var k=COV.view==='prov'?p.p:(normTxt(p.l)||'(sin localidad)');
+      var g=groups.get(k);
+      if(!g){g={key:k,name:COV.view==='prov'?nice(p.p):(String(p.l||'').trim()?nice(String(p.l).trim()):'(Sin localidad)'),act:0,inact:0,dense:0,pts:[]};groups.set(k,g);}
+      if(isAct(p)){g.act++; if(COV.dense.has(p)) g.dense++;} else g.inact++;
+      g.pts.push(p);
+    });
+    var rows=Array.from(groups.values()), A=0, I=0;
+    rows.forEach(function(g){g.tot=g.act+g.inact; g.pct=g.tot?g.inact/g.tot*100:0; A+=g.act; I+=g.inact;});
+    var dir=COV.sortDir, sk=COV.sortKey;
+    rows.sort(function(a,b){
+      var x=sk==='name'?a.name.localeCompare(b.name,'es')*dir:(a[sk]-b[sk])*dir;
+      return x!==0?x:a.name.localeCompare(b.name,'es');
+    });
+    return {rows:rows,A:A,I:I,pct:(A+I)?I/(A+I)*100:0};
+  }
+
+  // ---- Panel ----
+  function el(id){return document.getElementById(id);}
+  function buildPanel(){
+    var old=el('cov-panel'); if(old) old.remove();
+    var p=document.createElement('div'); p.id='cov-panel';
+    p.innerHTML=
+      '<div id="cov-head"><span>📊 Cobertura de la red</span><button id="cov-x" title="Cerrar">✕</button></div>'+
+      '<div id="cov-body">'+
+        '<div class="cov-cards" id="cov-cards"></div>'+
+        '<div class="cov-ctl"><div class="cov-seg"><button data-v="prov" class="on">Provincias</button><button data-v="loc">Localidades</button></div>'+
+        '<select id="cov-prov" style="display:none"></select></div>'+
+        '<div class="cov-tw"><table id="cov-table"><thead></thead><tbody></tbody></table></div>'+
+        '<div class="cov-sw">'+
+          '<label><input type="checkbox" id="cov-c"><span class="cov-dot" style="background:#38bdf8"></span> Radio de cobertura de PDR activos'+
+          '<select id="cov-r"><option value="0.5">500 m</option><option value="1" selected>1 km</option><option value="2">2 km</option><option value="5">5 km</option></select></label>'+
+          '<label><input type="checkbox" id="cov-d"><span class="cov-dot ring"></span> Resaltar concentración (3+ PDR a menos de 500 m)</label>'+
+        '</div>'+
+        '<div class="cov-note">Zonas sin círculo = sin cobertura; el azul se intensifica donde se superponen varios PDR. Los inactivos no cuentan para cobertura ni concentración. Hacé clic en una fila para ir a esa zona.</div>'+
+      '</div>';
+    document.body.appendChild(p);
+    el('cov-x').onclick=closePanel;
+    p.querySelectorAll('.cov-seg button').forEach(function(b){
+      b.onclick=function(){
+        COV.view=b.getAttribute('data-v'); COV.sel=null;
+        if(COV.view==='loc'&&!COV.prov) COV.prov=topProv();
+        COV.sortKey='act'; COV.sortDir=-1;
+        syncControls(); render(); drawLayers();
+      };
+    });
+    el('cov-prov').onchange=function(){COV.prov=this.value; COV.sel=null; render(); drawLayers();};
+    el('cov-c').onchange=function(){COV.showC=this.checked; drawLayers();};
+    el('cov-r').onchange=function(){COV.radiusKm=parseFloat(this.value); drawLayers();};
+    el('cov-d').onchange=function(){COV.showD=this.checked; drawLayers();};
+    var tb=p.querySelector('tbody');
+    tb.onclick=function(e){
+      var tr=e.target.closest('tr.cov-r'); if(!tr) return;
+      COV.sel=tr.getAttribute('data-k');
+      tb.querySelectorAll('tr').forEach(function(r){r.classList.toggle('sel',r===tr);});
+      zoomTo(COV.sel);
+    };
+    p.querySelector('thead').onclick=function(e){
+      var th=e.target.closest('th'); if(!th) return;
+      var k=th.getAttribute('data-s');
+      if(COV.sortKey===k) COV.sortDir=-COV.sortDir; else {COV.sortKey=k; COV.sortDir=(k==='name')?1:-1;}
+      render();
+    };
+  }
+
+  function topProv(){
+    var c={}; POINTS.forEach(function(p){c[p.p]=(c[p.p]||0)+1;});
+    return Object.keys(c).sort(function(a,b){return c[b]-c[a];})[0]||'';
+  }
+  function fillProvSelect(){
+    var s=el('cov-prov'); if(!s) return;
+    var c={}; POINTS.forEach(function(p){c[p.p]=(c[p.p]||0)+1;});
+    var keys=Object.keys(c).sort(function(a,b){return c[b]-c[a];});
+    s.innerHTML=keys.map(function(k){return '<option value="'+esc(k)+'">'+esc(nice(k))+' ('+fmt(c[k])+')</option>';}).join('');
+    if(!COV.prov||keys.indexOf(COV.prov)<0) COV.prov=keys[0]||'';
+    s.value=COV.prov;
+  }
+  function syncControls(){
+    var p=el('cov-panel'); if(!p) return;
+    p.querySelectorAll('.cov-seg button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===COV.view);});
+    el('cov-prov').style.display=(COV.view==='loc')?'':'none';
+    if(COV.view==='loc') fillProvSelect();
+  }
+
+  function render(){
+    var p=el('cov-panel'); if(!p) return;
+    var st=buildStats(), pc=function(v){return v>=10?'hi':(v>=5?'mid':'');};
+    el('cov-cards').innerHTML=
+      '<div class="cov-card"><b>'+fmt(st.A)+'</b><span>Activos</span></div>'+
+      '<div class="cov-card"><b>'+fmt(st.I)+'</b><span>Inactivos</span></div>'+
+      '<div class="cov-card"><b class="cov-pct '+pc(st.pct)+'">'+st.pct.toFixed(1).replace('.',',')+'%</b><span>% inactivos</span></div>';
+    var cols=[['name',COV.view==='prov'?'Provincia':'Localidad'],['act','Activos'],['inact','Inact.'],['pct','% inact.'],['dense','Conc.']];
+    p.querySelector('thead').innerHTML='<tr>'+cols.map(function(c){
+      var ar=COV.sortKey===c[0]?(COV.sortDir>0?' ▲':' ▼'):'';
+      return '<th data-s="'+c[0]+'">'+c[1]+ar+'</th>';}).join('')+'</tr>';
+    p.querySelector('tbody').innerHTML=st.rows.map(function(g){
+      return '<tr class="cov-r'+(COV.sel===g.key?' sel':'')+'" data-k="'+esc(g.key)+'"><td title="'+esc(g.name)+'">'+esc(g.name)+'</td><td>'+fmt(g.act)+'</td><td>'+fmt(g.inact)+
+             '</td><td class="cov-pct '+pc(g.pct)+'">'+g.pct.toFixed(1).replace('.',',')+'%</td><td>'+fmt(g.dense)+'</td></tr>';
+    }).join('')||'<tr><td colspan="5" style="text-align:center;color:#64748b">Sin datos</td></tr>';
+    COV._rows=st.rows;
+  }
+
+  function zoomTo(key){
+    var g=(COV._rows||[]).filter(function(r){return r.key===key;})[0]; if(!g||!g.pts.length) return;
+    var b=L.latLngBounds(g.pts.map(function(p){return [p.lat,p.lng];}));
+    map.fitBounds(b,{padding:[40,40],maxZoom:15});
+  }
+
+  // ---- Capas en el mapa ----
+  function ensurePanes(){
+    if(!map.getPane('covPane')){map.createPane('covPane');map.getPane('covPane').style.zIndex=380;map.getPane('covPane').style.pointerEvents='none';}
+    if(!map.getPane('covPaneD')){map.createPane('covPaneD');map.getPane('covPaneD').style.zIndex=590;map.getPane('covPaneD').style.pointerEvents='none';}
+  }
+  function clearLayers(){
+    if(COV.layerC){map.removeLayer(COV.layerC);COV.layerC=null;}
+    if(COV.layerD){map.removeLayer(COV.layerD);COV.layerD=null;}
+  }
+  function drawLayers(){
+    clearLayers(); ensurePanes();
+    var scope=POINTS;   // las capas siempre muestran TODOS los PDR (si no, una provincia vecina parecería sin cobertura)
+    if(COV.showC){
+      var rc=L.canvas({pane:'covPane',padding:0.3}), g=L.layerGroup();
+      scope.forEach(function(p){
+        if(!isAct(p)||!isFinite(p.lat)||!isFinite(p.lng)) return;
+        L.circle([p.lat,p.lng],{renderer:rc,pane:'covPane',radius:COV.radiusKm*1000,stroke:false,fillColor:'#38bdf8',fillOpacity:0.10,interactive:false}).addTo(g);
+      });
+      g.addTo(map); COV.layerC=g;
+    }
+    if(COV.showD){
+      var rd=L.canvas({pane:'covPaneD',padding:0.3}), g2=L.layerGroup();
+      scope.forEach(function(p){
+        if(!COV.dense.has(p)) return;
+        L.circleMarker([p.lat,p.lng],{renderer:rd,pane:'covPaneD',radius:10,color:'#fb923c',weight:2.5,fill:false,interactive:false}).addTo(g2);
+      });
+      g2.addTo(map); COV.layerD=g2;
+    }
+    var b=el('cov-btn'); if(b) b.classList.toggle('on',!!(COV.showC||COV.showD||(el('cov-panel')&&el('cov-panel').classList.contains('open'))));
+  }
+
+  // ---- Abrir / cerrar ----
+  function openPanel(){
+    if(!el('cov-panel')) buildPanel();
+    COV.dense=computeDense();
+    syncControls(); render();
+    el('cov-panel').classList.add('open');
+    var lg=el('leg'); if(lg) lg.style.display='none';
+    var b=el('cov-btn'); if(b) b.classList.add('on');
+  }
+  function closePanel(){
+    var p=el('cov-panel'); if(p) p.classList.remove('open');
+    var lg=el('leg'); if(lg) lg.style.display='';
+    var b=el('cov-btn'); if(b) b.classList.toggle('on',!!(COV.showC||COV.showD));
+  }
+
+  // Se llama después de "Actualizar JSON"
+  window.covRefresh=function(){
+    COV.dense=computeDense(); COV.sel=null;
+    if(el('cov-panel')){syncControls(); render();}
+    if(COV.showC||COV.showD) drawLayers();
+  };
+
+  // ---- Botón en el encabezado ----
+  (function(){
+    var old=el('cov-btn'); if(old) old.remove();
+    var hs=document.querySelector('.hstats'); if(!hs) return;
+    var upd=hs.querySelector('.update-header-btn');
+    var b=document.createElement('button');
+    b.id='cov-btn'; b.className='update-header-btn'; b.textContent='📊 Cobertura';
+    b.onclick=function(){ var p=el('cov-panel'); (p&&p.classList.contains('open'))?closePanel():openPanel(); };
+    hs.insertBefore(b,upd||null);
+  })();
+})();
 </script>
 </body></html>
